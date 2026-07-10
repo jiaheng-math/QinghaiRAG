@@ -7,6 +7,31 @@ tags:
   - cultural-heritage
   - knowledge-graph
 license: other
+configs:
+  - config_name: source_registry
+    data_files:
+      - split: full
+        path: source_registry/full-*.parquet
+  - config_name: entities
+    data_files:
+      - split: full
+        path: entities/full-*.parquet
+  - config_name: facts
+    data_files:
+      - split: full
+        path: facts/full-*.parquet
+  - config_name: open_chunks
+    data_files:
+      - split: full
+        path: open_chunks/full-*.parquet
+  - config_name: qa_benchmark
+    data_files:
+      - split: full
+        path: qa_benchmark/full-*.parquet
+  - config_name: audit_samples
+    data_files:
+      - split: full
+        path: audit_samples/full-*.parquet
 ---
 
 # QinghaiRAG dataset card
