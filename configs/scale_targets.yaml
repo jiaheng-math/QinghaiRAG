@@ -22,5 +22,5 @@ tiers:
     facts: {min: 10000, max: 50000}
     chunks: {min: 10000, max: 50000}
     qa: {min: 1000, max: 3000}
-    manually_checked_facts: {min: 300, max: 800}
+    manually_checked_facts: {min: 500, max: 1000}
     manually_checked_qa: {min: 300, max: 800}

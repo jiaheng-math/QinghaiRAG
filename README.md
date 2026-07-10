@@ -14,7 +14,7 @@ Scale is a quality gate, not a licence to collect low-quality text. The ordering
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Toy seed | 5–20 | 20–100 | 50–200 | 20–100 | 20–50 | smoke review only | smoke review only |
 | v0.1 showcase | 100–300 | 500–1,500 | 2,000–8,000 | 2,000–8,000 | 300–800 | 100–200 | 300–500 |
-| v1.0 benchmark | 500–1,500 | 2,000–8,000 | 10,000–50,000 | 10,000–50,000 | 1,000–3,000 | 300–800 | 300–800 |
+| v1.0 benchmark | 500–1,500 | 2,000–8,000 | 10,000–50,000 | 10,000–50,000 | 1,000–3,000 | 300–800 | 500–1,000 |
 
 The toy seed is only a smoke test. **v0.1 is the first version appropriate for a CV, GitHub, or Hugging Face showcase; v1.0 is the benchmark-grade target.** The ranges are machine-readable in `configs/scale_targets.yaml`, and the statistics report marks each tier as below/in range/above.
 
@@ -136,6 +136,14 @@ python -m qinghai_rag.rag.evaluate --top-k 5 --device cuda --rerank
 ```
 
 Dataset statistics are written to `data/interim/dataset_stats.{json,md}`. They include source/entity/relation/QA distributions, chunk lengths, per-source fact/chunk/QA contributions, tier readiness, and an explicit restricted-source open-text audit. Synthetic summaries may cite restricted sources only when they are genuinely project-authored from publishable verified facts; restricted raw text remains an error.
+
+V1 source coverage is audited separately so a large but narrow registry cannot pass by volume alone:
+
+```bash
+python scripts/17_audit_source_coverage.py
+```
+
+This writes `data/interim/source_coverage_report.{json,md}` with source-level, topic, prefecture-level region, and region-by-topic coverage plus explicit gaps. Targets and administrative aliases are machine-readable in `configs/coverage_targets.yaml`.
 
 ## AutoDL: persistent cache and recovery
 

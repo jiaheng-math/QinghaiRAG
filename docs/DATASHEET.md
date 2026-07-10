@@ -12,7 +12,7 @@ The three explicit scale tiers are:
 
 - Toy seed: 5–20 sources, 20–100 entities, 50–200 facts, 20–100 chunks, and 20–50 QA. This is only a smoke test.
 - v0.1 showcase: 100–300 sources, 500–1,500 entities, 2,000–8,000 facts, 2,000–8,000 chunks, and 300–800 QA; 100–200 QA and 300–500 facts should be manually checked.
-- v1.0 benchmark: 500–1,500 sources, 2,000–8,000 entities, 10,000–50,000 facts/chunks, and 1,000–3,000 QA, including 300–800 manually verified QA.
+- v1.0 benchmark: 500–1,500 sources, 2,000–8,000 entities, 10,000–50,000 facts/chunks, and 1,000–3,000 QA, including 300–800 manually verified QA and 500–1,000 manually verified facts.
 
 The intended curation mix is approximately 40% structured facts/triples, 30% project-authored synthetic fact chunks, 20% redistributable official text chunks, and 10% QA evaluation work. Provenance and licence quality take priority over hitting a numerical range.
 
@@ -22,7 +22,7 @@ Maintainers register page-level seeds, assess preliminary terms, respect robots 
 
 ## Source policy
 
-Official national/provincial pages are preferred. Restricted sources are metadata/facts only. Commercial guides, social platforms, encyclopedias, and unclear scans are excluded by default. Public accessibility alone never authorizes full-text redistribution.
+Official national, provincial, municipal/county, museum, cultural-venue, and scenic-area pages are preferred. Restricted sources are metadata/facts only. Commercial guides, social platforms, encyclopedias, and unclear scans are excluded by default. Public accessibility alone never authorizes full-text redistribution. `17_audit_source_coverage.py` checks the configured source-level, topic, prefecture-level region, and region-by-topic coverage targets.
 
 ## Annotation process
 

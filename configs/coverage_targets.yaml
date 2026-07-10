@@ -1,0 +1,63 @@
+source_levels:
+  national_official:
+    label: 国家级官方数据库
+    source_types: [national_official_database]
+    min_sources: 100
+  provincial_official:
+    label: 省级政府与文旅部门
+    source_types: [provincial_government, provincial_culture_tourism_department]
+    min_sources: 100
+  municipal_or_county_official:
+    label: 市州与县区官方来源
+    source_types: [municipal_or_county_government]
+    min_sources: 80
+  museum_or_scenic_official:
+    label: 博物馆、文化场馆与景区官方来源
+    source_types: [museum_or_scenic_spot_official]
+    min_sources: 40
+
+topics:
+  非遗:
+    min_sources: 100
+    aliases: [非遗, 非物质文化遗产, 传承人]
+  民族文化:
+    min_sources: 30
+    aliases: [民族文化, 藏族, 土族, 回族, 撒拉族, 蒙古族]
+  景区与文化地点:
+    min_sources: 50
+    aliases: [景区, 景点, 文化地点, 寺, 遗址, 古城, 公园]
+  博物馆与文化场馆:
+    min_sources: 30
+    aliases: [博物馆, 文化馆, 展览馆, 非遗馆, 保护中心]
+  生态旅游:
+    min_sources: 50
+    aliases: [生态旅游, 生态文旅, 国家公园, 自然保护区, 青海湖, 三江源, 可可西里]
+  文旅政策:
+    min_sources: 50
+    aliases: [文旅政策, 政策, 规划, 条例, 办法, 通知, 公示, 专项资金]
+
+regions:
+  西宁市:
+    min_sources: 10
+    aliases: [西宁市, 城东区, 城中区, 城西区, 城北区, 湟中区, 湟中县, 大通回族土族自治县, 湟源县]
+  海东市:
+    min_sources: 10
+    aliases: [海东市, 乐都区, 乐都县, 平安区, 平安县, 民和回族土族自治县, 互助土族自治县, 化隆回族自治县, 循化撒拉族自治县]
+  海北藏族自治州:
+    min_sources: 10
+    aliases: [海北藏族自治州, 门源回族自治县, 祁连县, 海晏县, 刚察县]
+  黄南藏族自治州:
+    min_sources: 10
+    aliases: [黄南藏族自治州, 同仁市, 同仁县, 尖扎县, 泽库县, 河南蒙古族自治县]
+  海南藏族自治州:
+    min_sources: 10
+    aliases: [海南藏族自治州, 共和县, 同德县, 贵德县, 兴海县, 贵南县]
+  果洛藏族自治州:
+    min_sources: 10
+    aliases: [果洛藏族自治州, 玛沁县, 班玛县, 甘德县, 达日县, 久治县, 玛多县]
+  玉树藏族自治州:
+    min_sources: 10
+    aliases: [玉树藏族自治州, 玉树市, 杂多县, 称多县, 治多县, 囊谦县, 曲麻莱县]
+  海西蒙古族藏族自治州:
+    min_sources: 10
+    aliases: [海西蒙古族藏族自治州, 格尔木市, 德令哈市, 茫崖市, 乌兰县, 都兰县, 天峻县, 大柴旦]

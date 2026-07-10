@@ -17,6 +17,7 @@ class SourceType(StrEnum):
     NATIONAL_OFFICIAL_DATABASE = "national_official_database"
     PROVINCIAL_GOVERNMENT = "provincial_government"
     PROVINCIAL_CULTURE_TOURISM_DEPARTMENT = "provincial_culture_tourism_department"
+    MUNICIPAL_OR_COUNTY_GOVERNMENT = "municipal_or_county_government"
     MUSEUM_OR_SCENIC_SPOT_OFFICIAL = "museum_or_scenic_spot_official"
     RESTRICTED_REFERENCE = "restricted_reference"
     OTHER = "other"

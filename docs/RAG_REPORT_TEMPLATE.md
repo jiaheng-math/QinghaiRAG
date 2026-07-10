@@ -17,11 +17,11 @@ Document source count, entity count, released chunk count, verified/unverified/m
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Toy seed | 5–20 | 20–100 | 50–200 | 20–100 | 20–50 | smoke only | smoke only |
 | v0.1 | 100–300 | 500–1,500 | 2,000–8,000 | 2,000–8,000 | 300–800 | 100–200 | 300–500 |
-| v1.0 | 500–1,500 | 2,000–8,000 | 10,000–50,000 | 10,000–50,000 | 1,000–3,000 | 300–800 | release-specific |
+| v1.0 | 500–1,500 | 2,000–8,000 | 10,000–50,000 | 10,000–50,000 | 1,000–3,000 | 300–800 | 500–1,000 |
 
 ## Source distribution
 
-Break down by publisher, source type, domain, licence status, release policy, region, and topic. Include average facts/chunks/QA links contributed per source and the restricted-source open-text audit.
+Break down by publisher, source type, domain, licence status, release policy, region, and topic. Include average facts/chunks/QA links contributed per source and the restricted-source open-text audit. Attach the source coverage report and discuss every unmet source-level, topic, prefecture-level region, and region-by-topic target.
 
 ## Entity distribution
 
