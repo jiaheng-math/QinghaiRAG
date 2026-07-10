@@ -25,6 +25,24 @@ RELATION_LABELS = {
 }
 
 
+def resolve_qa_minimum(
+    requested: int | None,
+    scale_targets: dict,
+    tier: str = "v0.1",
+) -> int:
+    if requested is not None:
+        if requested <= 0:
+            raise ValueError("QA minimum must be positive")
+        return requested
+    try:
+        minimum = int(scale_targets["tiers"][tier]["qa"]["min"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(f"Missing QA minimum for release tier {tier}") from exc
+    if minimum <= 0:
+        raise ValueError("Configured QA minimum must be positive")
+    return minimum
+
+
 def stable_question_id(question: str) -> str:
     return "q_" + hashlib.sha256(question.encode()).hexdigest()[:12]
 
@@ -118,9 +136,7 @@ def generate_regional(facts: list[FactRecord], target: int) -> list[QARecord]:
     for (predicate, region), group in groups.items():
         projects = sorted({fact.subject for fact in group})
         answer = "、".join(projects) + "。"
-        templates = (
-            located_templates if predicate == "located_in" else declared_templates
-        )
+        templates = located_templates if predicate == "located_in" else declared_templates
         for template in templates:
             item = _qa(
                 template.format(region=region),

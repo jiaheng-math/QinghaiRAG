@@ -1,4 +1,10 @@
-from qinghai_rag.qa_generation import generate_comparison, generate_regional
+import pytest
+
+from qinghai_rag.qa_generation import (
+    generate_comparison,
+    generate_regional,
+    resolve_qa_minimum,
+)
 from qinghai_rag.schemas import FactRecord
 
 
@@ -53,3 +59,17 @@ def test_regional_aggregation_uses_administrative_applicants_not_organizations()
     assert "青海省同仁县" in question.question
     assert "申报" in question.question
     assert question.evidence_fact_ids == [regional.fact_id]
+
+
+def test_qa_minimum_defaults_to_configured_release_tier():
+    targets = {"tiers": {"v0.1": {"qa": {"min": 300}}}}
+
+    assert resolve_qa_minimum(None, targets) == 300
+    assert resolve_qa_minimum(1000, targets) == 1000
+
+
+def test_qa_minimum_rejects_missing_or_nonpositive_values():
+    with pytest.raises(ValueError, match="Missing QA minimum"):
+        resolve_qa_minimum(None, {})
+    with pytest.raises(ValueError, match="must be positive"):
+        resolve_qa_minimum(0, {"tiers": {}})
