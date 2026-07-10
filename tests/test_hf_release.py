@@ -26,6 +26,7 @@ def test_prepare_release_package_copies_auditable_artifacts(tmp_path: Path):
     paths = _paths(tmp_path)
     for filename, (area, source_name) in REPORT_FILES.items():
         source = getattr(paths, area) / source_name
+        source.parent.mkdir(parents=True, exist_ok=True)
         source.write_text(f"report {filename}", encoding="utf-8")
     for filename in CONFIG_FILES:
         (paths.configs / filename).write_text("enabled: true\n", encoding="utf-8")
@@ -58,6 +59,8 @@ def test_prepare_release_package_copies_auditable_artifacts(tmp_path: Path):
     assert set(manifest["configs"]) == set(configs)
     assert (output / "jsonl" / "audit_samples.jsonl").exists()
     assert (output / "reports" / "eval_report.json").exists()
+    assert (output / "reports" / "TECHNICAL_REPORT.md").exists()
+    assert (output / "reports" / "QinghaiRAG_Technical_Report_1.0.0-rc1.pdf").exists()
     assert (output / "pipeline_configs" / "rag.yaml").exists()
     assert (output / "RELEASE_MANIFEST.json").exists()
 

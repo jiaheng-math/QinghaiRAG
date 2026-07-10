@@ -70,6 +70,8 @@ Every released fact and answerable QA record resolves to registered `source_id` 
 
 The release validator reports zero restricted open-text violations. Open text is included only where the source-level release policy permits it; other sources contribute metadata, reviewed facts, or project-authored synthetic factual summaries.
 
+A pre-publication evidence-minimization audit rewrote 126 legacy table excerpts—62 category facts and 64 applicant facts—to retain only the project name and relation-specific value. Fact IDs, triples, source URLs, and review states were unchanged. The validator rejects future evidence excerpts containing unrelated sex, birth-date, address, telephone, or identification fields.
+
 ## Retrieval baselines
 
 The audited 1,000-question run uses `top_k=5`. These are evidence-retrieval metrics, not generative-answer correctness scores.

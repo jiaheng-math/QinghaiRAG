@@ -18,6 +18,11 @@ REPORT_FILES = {
     "source_coverage_report.md": ("interim", "source_coverage_report.md"),
     "eval_report.json": ("interim", "eval_report.json"),
     "eval_report.md": ("interim", "eval_report.md"),
+    "TECHNICAL_REPORT.md": ("root", "docs/TECHNICAL_REPORT.md"),
+    "QinghaiRAG_Technical_Report_1.0.0-rc1.pdf": (
+        "root",
+        "output/pdf/QinghaiRAG_Technical_Report_1.0.0-rc1.pdf",
+    ),
 }
 
 CONFIG_FILES = (
