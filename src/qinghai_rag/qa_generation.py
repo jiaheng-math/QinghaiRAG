@@ -264,18 +264,44 @@ def generate_comparison(facts: list[FactRecord], target: int) -> list[QARecord]:
 
 
 def generate_unanswerable(facts: list[FactRecord], target: int) -> list[QARecord]:
-    subjects = sorted({fact.subject for fact in facts}) or ["未收录项目"]
-    templates = [
-        "{s}上一年度的游客数量是多少？",
-        "{s}今天的商业门票价格是多少？",
-        "{s}未来五年的营业收入预测是多少？",
-        "未收录项目甲的代表性传承人是谁？",
+    templates_by_type = {
+        "ICH_PROJECT": [
+            "{s}最近一次保护评估的具体得分是多少？",
+            "{s}上一年度获得的专项保护资金是多少？",
+            "{s}最近一次官方展演的具体日期是什么？",
+            "{s}当前完整的传习课程安排是什么？",
+        ],
+        "MUSEUM_OBJECT": [
+            "{s}的具体出土地点是什么？",
+            "{s}的入藏日期是哪一天？",
+            "{s}的文物定级是什么？",
+            "{s}最近一次修复的日期是什么？",
+        ],
+        "PERSON": [
+            "{s}获得过哪些国家级奖项？",
+            "{s}目前有多少名正式弟子？",
+            "{s}最近一次公开传习活动是什么时候？",
+            "{s}的完整代表作品目录是什么？",
+        ],
+    }
+    generic_templates = [
+        "{s}最新一次官方更新的具体日期是什么？",
+        "{s}对应的最新年度统计数据是多少？",
+        "{s}最近一次正式审查的结论是什么？",
+        "{s}的完整档案编号是什么？",
     ]
+    subjects = sorted(
+        {(normalize_entity_name(fact.subject), fact.subject_type) for fact in facts}
+    ) or [("未收录项目甲", "ICH_PROJECT")]
+    candidates: list[tuple[str, str]] = []
+    for subject, subject_type in subjects:
+        templates = templates_by_type.get(subject_type, generic_templates)
+        candidates.extend((template.format(s=subject), subject) for template in templates)
+
     output: dict[str, QARecord] = {}
-    for subject, template in itertools.islice(
-        itertools.cycle(itertools.product(subjects, templates)), target * 4
+    for question, subject in sorted(
+        candidates, key=lambda value: hashlib.sha256(value[0].encode()).hexdigest()
     ):
-        question = template.format(s=subject)
         item = _qa(question, REFUSAL, "unanswerable", [], [subject], "hard", unanswerable=True)
         output[item.question_id] = item
         if len(output) >= target:

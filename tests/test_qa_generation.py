@@ -5,6 +5,7 @@ from qinghai_rag.qa_generation import (
     generate_multi_hop,
     generate_regional,
     generate_single_fact,
+    generate_unanswerable,
     resolve_qa_minimum,
 )
 from qinghai_rag.schemas import FactRecord
@@ -173,3 +174,42 @@ def test_multi_hop_lists_all_values_for_multi_value_relation():
 
     assert question.answer == "申报地区或单位：青海省同仁县；代表性传承人：娘本、西合道。"
     assert question.evidence_fact_ids == ["1", "2", "declared"]
+
+
+def _subject_fact(subject: str, subject_type: str) -> FactRecord:
+    payload = _category_fact(f"fact_{subject_type}", subject, "测试类别").model_dump(
+        mode="json"
+    )
+    payload["subject_type"] = subject_type
+    return FactRecord.model_validate(payload)
+
+
+def test_unanswerable_museum_questions_are_plausible_for_objects():
+    questions = generate_unanswerable([_subject_fact("测试藏品", "MUSEUM_OBJECT")], target=4)
+
+    assert len(questions) == 4
+    assert all("门票" not in item.question and "游客" not in item.question for item in questions)
+    assert {item.question for item in questions} == {
+        "测试藏品的具体出土地点是什么？",
+        "测试藏品的入藏日期是哪一天？",
+        "测试藏品的文物定级是什么？",
+        "测试藏品最近一次修复的日期是什么？",
+    }
+
+
+def test_unanswerable_person_questions_are_plausible_for_people():
+    questions = generate_unanswerable([_subject_fact("测试传承人", "PERSON")], target=4)
+
+    assert len(questions) == 4
+    assert all("门票" not in item.question and "游客" not in item.question for item in questions)
+    assert any("弟子" in item.question for item in questions)
+    assert any("代表作品" in item.question for item in questions)
+
+
+def test_unanswerable_project_questions_request_missing_project_information():
+    questions = generate_unanswerable([_subject_fact("测试项目", "ICH_PROJECT")], target=4)
+
+    assert len(questions) == 4
+    assert all("门票" not in item.question for item in questions)
+    assert any("保护评估" in item.question for item in questions)
+    assert any("专项保护资金" in item.question for item in questions)
