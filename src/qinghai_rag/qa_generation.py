@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import itertools
 import logging
+import re
 from collections import defaultdict
 
 from qinghai_rag.schemas import FactRecord, QARecord
@@ -87,12 +88,16 @@ def generate_single_fact(facts: list[FactRecord], target: int) -> list[QARecord]
 
 
 def generate_regional(facts: list[FactRecord], target: int) -> list[QARecord]:
-    groups: dict[str, list[FactRecord]] = defaultdict(list)
+    groups: dict[tuple[str, str], list[FactRecord]] = defaultdict(list)
     for fact in facts:
         if fact.predicate == "located_in":
-            groups[fact.object].append(fact)
+            groups[(fact.predicate, fact.object)].append(fact)
+        elif fact.predicate == "declared_by" and re.search(
+            r"(?:省|市|县|区|州|自治县|自治州)$", fact.object
+        ):
+            groups[(fact.predicate, fact.object)].append(fact)
     output: dict[str, QARecord] = {}
-    templates = [
+    located_templates = [
         "{region}地区有哪些已收录的非遗项目？",
         "根据当前事实表，哪些项目与{region}相关？",
         "请列出数据集中关联到{region}的项目。",
@@ -101,9 +106,21 @@ def generate_regional(facts: list[FactRecord], target: int) -> list[QARecord]:
         "汇总当前记录：{region}包含哪些相关项目？",
         "不使用外部知识时，可列出哪些{region}相关项目？",
     ]
-    for region, group in groups.items():
+    declared_templates = [
+        "{region}申报了哪些已收录的非遗项目？",
+        "根据当前事实表，由{region}申报的项目有哪些？",
+        "请列出数据集中申报方为{region}的项目。",
+        "在现有已核验记录中，哪些项目由{region}申报？",
+        "仅依据当前数据，可列出哪些{region}申报的项目？",
+        "汇总当前记录：{region}对应的申报项目有哪些？",
+        "不使用外部知识时，能确认哪些项目由{region}申报？",
+    ]
+    for (predicate, region), group in groups.items():
         projects = sorted({fact.subject for fact in group})
         answer = "、".join(projects) + "。"
+        templates = (
+            located_templates if predicate == "located_in" else declared_templates
+        )
         for template in templates:
             item = _qa(
                 template.format(region=region),
