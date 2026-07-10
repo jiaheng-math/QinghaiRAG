@@ -151,6 +151,13 @@ python scripts/23_build_tibetan_museum_facts.py
 python scripts/23_build_tibetan_museum_facts.py --apply
 ```
 
+Apply a maintainer-confirmed fixed museum sample only after reviewing all displayed fields and relations. The command is idempotent and refuses any source hash, subject, or four-relation mismatch:
+
+```bash
+python scripts/24_apply_museum_manual_review.py
+python scripts/24_apply_museum_manual_review.py --apply
+```
+
 The importer is idempotent, refuses a changed attachment hash, marks reviewed facts with `extraction_method=manual_review`, and never releases the scanned PDF as open text.
 
 ## Release policy

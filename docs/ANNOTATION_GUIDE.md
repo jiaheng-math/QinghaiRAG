@@ -45,6 +45,8 @@ When the same approved official record explicitly states a project's level, the 
 
 Mixed-level resource inventories may set `level`, `source_sequence`, `inheritors`, and (when source punctuation or typography is not a stable entity name) `canonical_project_name` per project row. The evidence retains the source project name while the graph uses the reviewed canonical name. Legacy source categories such as `民间音乐`, `民间舞蹈`, and `岁时节令` are normalized to the benchmark taxonomy without changing the quoted evidence.
 
+Museum-object manual review samples live under `annotations/museum_reviews/`. Each fixed row records the official exhibit ID and all four expected relation values. The review applier requires a parsed source, a recorded content hash, an exact four-fact set, and high-confidence deterministic verification before it can set `manual_checked=true`; the source content hash and review ID are added to every reviewed fact.
+
 ## Conflicts
 
 Retain both evidence-backed facts, mark them unverified or lower confidence, and explain the conflict in `notes`. Do not create a deterministic synthetic sentence or QA answer until a reviewer resolves the scope/date/identity issue. Do not silently select the newest page without checking what changed.

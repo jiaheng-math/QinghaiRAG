@@ -1,0 +1,17 @@
+review_id: review_tibetan_museum_sample_2026
+reviewed_at: "2026-07-10"
+reviewer_role: maintainer
+review_method: Field-by-field review of ten official museum detail API records against the generated subject, category, period, holding institution, and material relations.
+expected_sources: 10
+expected_facts: 40
+rows:
+  - {source_id: src_tibetan_museum_exhibit_151, exhibit_id: 151, name: 鎏金镂空雕龙凤纹铜质笔筒, category: 书法艺术, period: 清代, museum: 青海藏文化博物院, material: 铜}
+  - {source_id: src_tibetan_museum_exhibit_137, exhibit_id: 137, name: 藏青地几何填花寿字纹卡垫, category: 卡垫工艺, period: 清代, museum: 青海藏文化博物院, material: 毛}
+  - {source_id: src_tibetan_museum_exhibit_85, exhibit_id: 85, name: 木质供桌, category: 木雕工艺, period: 清代, museum: 青海藏文化博物院, material: 木}
+  - {source_id: src_tibetan_museum_exhibit_36, exhibit_id: 36, name: 琉璃壶, category: 玉、琉璃、宝石, period: 吐蕃时期, museum: 青海藏文化博物院, material: 琉璃}
+  - {source_id: src_tibetan_museum_exhibit_131, exhibit_id: 131, name: 罩红皮质长靴, category: 皮质工艺, period: 宋代, museum: 青海藏文化博物院, material: 皮}
+  - {source_id: src_tibetan_museum_exhibit_125, exhibit_id: 125, name: 石雕狮面佛母, category: 石雕工艺, period: 明代, museum: 青海藏文化博物院, material: 石}
+  - {source_id: src_tibetan_museum_exhibit_179, exhibit_id: 179, name: 藏医外治手术器械, category: 藏医药, period: 清代, museum: 青海藏文化博物院, material: 铁}
+  - {source_id: src_tibetan_museum_exhibit_166, exhibit_id: 166, name: 西藏阿里普兰女子服饰, category: 藏族服饰, period: 现代, museum: 青海藏文化博物院, material: 氆氇、羊羔皮、绸缎}
+  - {source_id: src_tibetan_museum_exhibit_44, exhibit_id: 44, name: 鎏金铜质八思巴坐像, category: 金属工艺, period: 元代, museum: 青海藏文化博物院, material: 铜}
+  - {source_id: src_tibetan_museum_exhibit_3, exhibit_id: 3, name: 嵌松石立凤金饰件, category: 金银器, period: 吐蕃时期, museum: 青海藏文化博物院, material: 金}
