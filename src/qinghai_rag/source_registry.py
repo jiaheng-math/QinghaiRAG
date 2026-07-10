@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse
 
 from qinghai_rag.config import PATHS, load_project_config
 from qinghai_rag.io_utils import read_jsonl, write_jsonl_atomic
@@ -22,6 +23,19 @@ class PolicyDecision:
 def normalize_domain(url_or_domain: str) -> str:
     parsed = urlparse(url_or_domain if "://" in url_or_domain else f"https://{url_or_domain}")
     return (parsed.hostname or "").lower().removeprefix("www.")
+
+
+def canonical_source_url(url: str) -> str:
+    """Return a stable page identity used to prevent duplicate source records."""
+    parsed = urlparse(url)
+    domain = normalize_domain(url)
+    path = re.sub(r"/+$", "", parsed.path) or "/"
+    if domain == "ihchina.cn":
+        match = re.fullmatch(r"(/project_details/\d+)(?:\.html)?", path)
+        if match:
+            path = match.group(1)
+    query = urlencode(sorted(parse_qsl(parsed.query, keep_blank_values=True)))
+    return f"{domain}{path}" + (f"?{query}" if query else "")
 
 
 def domain_matches(domain: str, candidates: list[str]) -> bool:
@@ -90,7 +104,19 @@ class SourceRegistry:
 
     def upsert(self, records: list[SourceRecord]) -> None:
         merged = self.by_id()
-        merged.update({record.source_id: record for record in records})
+        url_owners = {
+            canonical_source_url(record.url): record.source_id for record in merged.values()
+        }
+        for record in records:
+            url_key = canonical_source_url(record.url)
+            owner = url_owners.get(url_key)
+            if owner is not None and owner != record.source_id:
+                continue
+            previous = merged.get(record.source_id)
+            if previous is not None:
+                url_owners.pop(canonical_source_url(previous.url), None)
+            merged[record.source_id] = record
+            url_owners[url_key] = record.source_id
         write_jsonl_atomic(self.path, merged.values(), sort_key="source_id")
 
     @staticmethod

@@ -56,7 +56,14 @@ def main() -> None:
     write_jsonl_atomic(output, records, sort_key="source_id")
 
     if args.register:
-        SourceRegistry().upsert([candidate_to_source(item) for item in discovered])
+        registry = SourceRegistry()
+        registry_count_before = len(registry.records())
+        registry.upsert([candidate_to_source(item) for item in discovered])
+        registry_count_after = len(registry.records())
+        registered = registry_count_after - registry_count_before
+    else:
+        registered = 0
+        registry_count_after = None
 
     categories: dict[str, int] = {}
     for item in discovered:
@@ -67,7 +74,9 @@ def main() -> None:
             {
                 "discovered": len(discovered),
                 "candidate_queue": len(records),
-                "registered": len(discovered) if args.register else 0,
+                "registered": registered,
+                "skipped_existing": len(discovered) - registered if args.register else 0,
+                "registry_total": registry_count_after,
                 "categories": dict(sorted(categories.items())),
                 "output": str(output),
             },
