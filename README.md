@@ -138,6 +138,12 @@ python scripts/21_discover_tibetan_museum_exhibits.py --offline-json /tmp/tibeta
 
 These candidates are classified as museum-official sources but remain `metadata_and_facts_only`; collection images, 3D assets, and curatorial descriptions are not released by default.
 
+After registration, collect exhibit details through the dedicated API collector. It validates the exhibit ID and museum owner, stores the raw JSON locally, and writes an internal cleaned document while preserving the conservative release policy:
+
+```bash
+python scripts/22_collect_tibetan_museum_exhibits.py --no-env-proxy --interval 0.5
+```
+
 The importer is idempotent, refuses a changed attachment hash, marks reviewed facts with `extraction_method=manual_review`, and never releases the scanned PDF as open text.
 
 ## Release policy
