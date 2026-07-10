@@ -1,0 +1,25 @@
+tiers:
+  toy_seed:
+    label: Toy seed / smoke test
+    sources: {min: 5, max: 20}
+    entities: {min: 20, max: 100}
+    facts: {min: 50, max: 200}
+    chunks: {min: 20, max: 100}
+    qa: {min: 20, max: 50}
+  v0.1:
+    label: First public showcase release
+    sources: {min: 100, max: 300}
+    entities: {min: 500, max: 1500}
+    facts: {min: 2000, max: 8000}
+    chunks: {min: 2000, max: 8000}
+    qa: {min: 300, max: 800}
+    manually_checked_qa: {min: 100, max: 200}
+    manually_checked_facts: {min: 300, max: 500}
+  v1.0:
+    label: Benchmark-grade release
+    sources: {min: 500, max: 1500}
+    entities: {min: 2000, max: 8000}
+    facts: {min: 10000, max: 50000}
+    chunks: {min: 10000, max: 50000}
+    qa: {min: 1000, max: 3000}
+    manually_checked_qa: {min: 300, max: 800}

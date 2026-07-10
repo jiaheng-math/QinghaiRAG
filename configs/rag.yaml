@@ -1,0 +1,36 @@
+embedding:
+  model_name: BAAI/bge-small-zh-v1.5
+  device: cpu
+  batch_size: 32
+  normalize_embeddings: true
+sparse:
+  enabled: true
+  k1: 1.5
+  b: 0.75
+index:
+  metric: inner_product
+  index_path: data/cache/faiss.index
+  metadata_path: data/cache/faiss_metadata.jsonl
+  manifest_path: data/cache/faiss_manifest.json
+retrieval:
+  vector_top_k: 5
+  bm25_top_k: 5
+  graph_top_k: 10
+  graph_hops: 2
+  minimum_score: 0.2
+  evidence_budget: 10
+  dense_weight: 0.6
+  sparse_weight: 0.4
+reranker:
+  enabled: false
+  model_name: BAAI/bge-reranker-base
+  device: cpu
+  batch_size: 32
+  max_length: 512
+answer:
+  backend: evidence_only
+  llm_base_url: ""
+  llm_model: ""
+runtime:
+  resume: true
+  checkpoint_every: 25

@@ -1,0 +1,26 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Collected or derived artifacts that may contain non-redistributable text.
+data/raw/**
+!data/raw/.gitkeep
+data/interim/**
+!data/interim/.gitkeep
+
+# Reusable local/AutoDL artifacts: never commit weights or indexes.
+data/cache/**
+!data/cache/.gitkeep
+autodl-tmp/
+checkpoints/
+outputs/
+wandb/
+
+# Local HF export; release JSONL files remain tracked.
+data/release/hf_dataset/

@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "qinghai-rag"
+version = "0.1.0"
+description = "A provenance-first dataset package and RAG/Graph RAG baseline for Qinghai cultural heritage."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0 (code only; dataset records retain source-specific terms)"}
+authors = [{name = "QinghaiRAG contributors"}]
+dependencies = [
+  "beautifulsoup4>=4.12",
+  "datasets>=2.18",
+  "faiss-cpu>=1.8",
+  "gradio>=4.0",
+  "huggingface-hub>=0.23",
+  "jieba>=0.42",
+  "lxml>=5.0",
+  "networkx>=3.2",
+  "pandas>=2.1",
+  "pydantic>=2.6",
+  "PyYAML>=6.0",
+  "rapidfuzz>=3.6",
+  "requests>=2.31",
+  "sentence-transformers>=3.0",
+  "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.5"]
+
+[project.scripts]
+qinghai-rag-demo = "qinghai_rag.apps.gradio_demo:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/qinghai_rag"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]

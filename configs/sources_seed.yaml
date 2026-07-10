@@ -1,0 +1,63 @@
+project_contact: "replace-with-maintainer-email@example.com"
+request_interval_seconds: 1.0
+sources:
+  - source_id: src_seed_000001
+    title: 中国非物质文化遗产网·国家级非遗代表性项目名录
+    publisher: 中国非物质文化遗产网
+    source_type: national_official_database
+    url: https://www.ihchina.cn/project.html
+    topic: [非遗]
+    region: []
+    license_status: unclear
+    release_policy: metadata_and_facts_only
+    raw_text_release: false
+    enabled: true
+    notes: "Use site filters to locate Qinghai records; verify terms before collection."
+  - source_id: src_seed_000002
+    title: 中国非物质文化遗产网·国家级代表性传承人
+    publisher: 中国非物质文化遗产网
+    source_type: national_official_database
+    url: https://www.ihchina.cn/ccr.html
+    topic: [非遗, 传承人]
+    region: []
+    license_status: unclear
+    release_policy: metadata_and_facts_only
+    raw_text_release: false
+    enabled: true
+    notes: "Metadata/facts by default until reuse terms are verified."
+  - source_id: src_seed_000003
+    title: 青海省文化和旅游厅·非物质文化遗产
+    publisher: 青海省文化和旅游厅
+    source_type: provincial_culture_tourism_department
+    url: https://whlyt.qinghai.gov.cn/ggfw/fwzwhyc
+    topic: [非遗, 民族文化]
+    region: []
+    license_status: government_public
+    release_policy: government_public
+    raw_text_release: true
+    enabled: true
+    notes: "Government source; page-level restriction phrases still override this seed."
+  - source_id: src_seed_000004
+    title: 青海省人民政府·大美青海
+    publisher: 青海省人民政府
+    source_type: provincial_government
+    url: https://www.qinghai.gov.cn/dmqh/
+    topic: [生态旅游, 地域文化]
+    region: []
+    license_status: government_public
+    release_policy: government_public
+    raw_text_release: true
+    enabled: true
+    notes: "Collect specific article URLs rather than treating a listing page as one document."
+  - source_id: src_seed_000005
+    title: 青海非遗数字博物馆（限制来源占位）
+    publisher: 青海非遗数字博物馆
+    source_type: restricted_reference
+    url: https://www.qhich.cn/
+    topic: [非遗]
+    region: []
+    license_status: restricted
+    release_policy: metadata_and_facts_only
+    raw_text_release: false
+    enabled: false
+    notes: "Do not crawl or redistribute full text/media without permission."

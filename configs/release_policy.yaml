@@ -1,0 +1,25 @@
+restricted_domains:
+  - qhfyw.org.cn
+  - qhich.cn
+strong_restriction_phrases:
+  - 未经许可不得转载
+  - 严禁转载
+  - 禁止复制
+  - 版权所有
+excluded_domains:
+  - xiaohongshu.com
+  - mp.weixin.qq.com
+  - ctrip.com
+  - mafengwo.cn
+  - baike.baidu.com
+defaults:
+  unknown_license_status: unclear
+  unknown_release_policy: metadata_and_facts_only
+  unknown_raw_text_release: false
+government_domains:
+  - gov.cn
+  - qinghai.gov.cn
+  - whlyt.qinghai.gov.cn
+allowed_full_text_policies:
+  - full_text_allowed
+  - government_public

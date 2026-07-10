@@ -1,0 +1,15 @@
+dataset_name: QinghaiRAG
+schema_version: "0.1.0"
+id_prefixes:
+  source: src_
+  entity: ent_
+  fact: fact_
+  document: doc_
+  chunk: chk_
+  question: q_
+required_release_files:
+  - qinghai_sources.jsonl
+  - qinghai_entities.jsonl
+  - qinghai_facts.jsonl
+  - qinghai_chunks_open.jsonl
+  - qinghai_qa_eval.jsonl
