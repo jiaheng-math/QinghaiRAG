@@ -73,6 +73,7 @@ class SourceCandidateRecord(StrictRecord):
         "ihchina_inheritor_catalog",
         "whlyt_search",
         "guide_tourism",
+        "tibetan_museum_exhibit",
         "manual",
     ]
     discovered_at: str

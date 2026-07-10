@@ -130,6 +130,14 @@ python scripts/20_audit_document_quality.py --source-prefix src_guide_content_
 python scripts/20_audit_document_quality.py --source-prefix src_guide_content_ --apply
 ```
 
+Official Qinghai Tibetan Culture Museum collection objects are discovered from the museum's own structured API. A previously saved list response can be reviewed offline before registration:
+
+```bash
+python scripts/21_discover_tibetan_museum_exhibits.py --offline-json /tmp/tibetan_exhibits.json
+```
+
+These candidates are classified as museum-official sources but remain `metadata_and_facts_only`; collection images, 3D assets, and curatorial descriptions are not released by default.
+
 The importer is idempotent, refuses a changed attachment hash, marks reviewed facts with `extraction_method=manual_review`, and never releases the scanned PDF as open text.
 
 ## Release policy
