@@ -41,6 +41,8 @@ Public-notice candidate lists must set `publication_status: proposed` and record
 
 Representative-inheritor imports retain only the minimum benchmark fields needed for a public relation (normally project name and public representative name). Sex, birth date, detailed address, telephone number, identification number, and other unnecessary personal columns are excluded from reviewed annotations and release facts even when they appear in an official attachment.
 
+When the same approved official record explicitly states a project's level, the corresponding inheritor row may include `project_level`. Omit it from every row where the level applies only to the representative person or is otherwise ambiguous.
+
 ## Conflicts
 
 Retain both evidence-backed facts, mark them unverified or lower confidence, and explain the conflict in `notes`. Do not create a deterministic synthetic sentence or QA answer until a reviewer resolves the scope/date/identity issue. Do not silently select the newest page without checking what changed.

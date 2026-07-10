@@ -27,6 +27,7 @@ class ReviewedInheritorRow(StrictRecord):
     sequence: int = Field(ge=1)
     project_name: str
     person_name: str
+    project_level: str | None = None
 
 
 class ReviewedCatalogBase(StrictRecord):
@@ -191,9 +192,10 @@ def _reviewed_inheritor_fact(
 ) -> FactRecord:
     subject = normalize_entity_name(row.project_name)
     person = normalize_entity_name(row.person_name)
+    level_evidence = f"；项目级别：{row.project_level}" if row.project_level else ""
     evidence = (
-        f"人工核验官方附件表格第{row.sequence}行：项目名称：{row.project_name}；"
-        f"代表性传承人：{row.person_name}；名录批次：{review.batch}"
+        f"人工核验官方材料第{row.sequence}条：项目名称：{row.project_name}；"
+        f"代表性传承人：{row.person_name}{level_evidence}；名录批次：{review.batch}"
     )
     return FactRecord(
         fact_id=stable_fact_id(subject, "inherited_by", person, review.source_id),
@@ -217,12 +219,46 @@ def _reviewed_inheritor_fact(
     )
 
 
+def _reviewed_inheritor_level_fact(
+    review: ReviewedLocalInheritorCatalog,
+    row: ReviewedInheritorRow,
+) -> FactRecord:
+    subject = normalize_entity_name(row.project_name)
+    level = normalize_entity_name(row.project_level or "")
+    evidence = (
+        f"人工核验官方材料第{row.sequence}条：项目名称：{row.project_name}；"
+        f"项目级别：{row.project_level}；代表性传承人：{row.person_name}；"
+        f"名录批次：{review.batch}"
+    )
+    return FactRecord(
+        fact_id=stable_fact_id(subject, "has_level", level, review.source_id),
+        subject=subject,
+        subject_type="ICH_PROJECT",
+        predicate="has_level",
+        object=level,
+        object_type="CONCEPT",
+        evidence_source_id=review.source_id,
+        evidence_url=review.attachment_url,
+        evidence_text=evidence,
+        extraction_method="manual_review",
+        verified=True,
+        confidence="high",
+        manual_checked=True,
+        notes=(
+            f"review_id={review.review_id}; reviewed_at={review.reviewed_at}; "
+            f"attachment_sha256={review.attachment_sha256}"
+        ),
+    )
+
+
 def build_reviewed_catalog_facts(review: ReviewedCatalog) -> list[FactRecord]:
     if isinstance(review, ReviewedLocalInheritorCatalog):
-        return sorted(
-            (_reviewed_inheritor_fact(review, row) for row in review.rows),
-            key=lambda fact: fact.fact_id,
-        )
+        facts = []
+        for row in review.rows:
+            facts.append(_reviewed_inheritor_fact(review, row))
+            if row.project_level:
+                facts.append(_reviewed_inheritor_level_fact(review, row))
+        return sorted(facts, key=lambda fact: fact.fact_id)
     facts = []
     for row in review.rows:
         facts.append(

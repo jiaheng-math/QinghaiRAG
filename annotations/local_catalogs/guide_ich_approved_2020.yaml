@@ -1,0 +1,26 @@
+review_id: review_guide_ich_approved_2020
+catalog_kind: inheritor
+reviewed_at: "2026-07-10"
+reviewer_role: maintainer
+review_method: Complete relation-by-relation review of the approval text on the official county-government HTML page.
+source_id: src_guide_ich_approved_2020
+title: 关于批准并公布贵德县县级非物质文化遗产代表性项目和代表性传承人名录的通知
+publisher: 贵德县人民政府
+parent_page_url: https://www.guide.gov.cn/lnb/zc1__zwgk/zc/agwzlfl/zf/content_13605794
+attachment_url: https://www.guide.gov.cn/lnb/zc1__zwgk/zc/agwzlfl/zf/content_13605794
+attachment_sha256: a70b34e0a7c52a5ececea3f1d2f5447873ed841bfc867b2906665ce079baeb1b
+raw_path: data/raw/local_official/guide_ich_approved_2020.html
+region: [青海省, 海南藏族自治州, 贵德县]
+topic: [非遗, 文旅政策, 代表性传承人, 地方非遗名录]
+batch: "贵政〔2020〕87号"
+excluded_fields: []
+expected_rows: 8
+rows:
+  - {sequence: 1, project_name: 诺杰萨哲, person_name: 索南项尖, project_level: 县级}
+  - {sequence: 2, project_name: 贵德六月庙会, person_name: 秦国元}
+  - {sequence: 3, project_name: 贵德六月庙会, person_name: 桑吉多杰}
+  - {sequence: 4, project_name: 贵德六月庙会, person_name: 张福禄}
+  - {sequence: 5, project_name: 贵德六月庙会, person_name: 张福云}
+  - {sequence: 6, project_name: 贵德民间刺绣, person_name: 李有兰}
+  - {sequence: 7, project_name: 贵德民间刺绣, person_name: 李有芬}
+  - {sequence: 8, project_name: 贵德民间刺绣, person_name: 安果梅}

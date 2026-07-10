@@ -145,7 +145,12 @@ def test_reviewed_inheritor_catalog_excludes_personal_columns():
             "excluded_fields": ["性别", "民族", "出生年月", "地址"],
             "expected_rows": 2,
             "rows": [
-                {"sequence": 1, "project_name": "项目甲", "person_name": "甲某"},
+                {
+                    "sequence": 1,
+                    "project_name": "项目甲",
+                    "person_name": "甲某",
+                    "project_level": "县级",
+                },
                 {"sequence": 2, "project_name": "项目甲", "person_name": "乙某"},
             ],
         }
@@ -153,8 +158,10 @@ def test_reviewed_inheritor_catalog_excludes_personal_columns():
 
     facts = build_reviewed_catalog_facts(review)
 
-    assert len(facts) == 2
-    assert all(fact.predicate == "inherited_by" for fact in facts)
+    assert len(facts) == 3
+    assert sum(fact.predicate == "inherited_by" for fact in facts) == 2
+    assert sum(fact.predicate == "has_level" for fact in facts) == 1
+    assert next(fact.object for fact in facts if fact.predicate == "has_level") == "县级"
     assert all(fact.manual_checked for fact in facts)
     assert all("出生" not in (fact.evidence_text or "") for fact in facts)
     assert all("地址" not in (fact.evidence_text or "") for fact in facts)
