@@ -30,7 +30,13 @@ def clean_html(html: str) -> tuple[str, str]:
     for tag in soup(["script", "style", "noscript", "nav", "footer", "header", "aside", "form"]):
         tag.decompose()
     title = soup.title.get_text(" ", strip=True) if soup.title else ""
-    root = soup.find("article") or soup.find("main") or soup.body or soup
+    root = (
+        soup.select_one(".app-content-body")
+        or soup.find("article")
+        or soup.find("main")
+        or soup.body
+        or soup
+    )
     lines = []
     for element in root.find_all(BLOCK_TAGS):
         if element.find_parent(BLOCK_TAGS) and element.name in {"div", "section"}:

@@ -110,7 +110,8 @@ def build_open_chunks(
                     release_policy=source.release_policy,
                     source_url=source.url,
                     retrieved_at=source.retrieved_at,
-                    notes="Built from release-approved open text.",
+                    notes=document.get("attribution")
+                    or "Built from release-approved open text.",
                 )
             )
     return records

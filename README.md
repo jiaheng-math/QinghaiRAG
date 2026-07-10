@@ -82,6 +82,8 @@ The official representative-inheritor directory is a separate source class. Run 
 
 After collecting reviewed inheritor pages, `python scripts/15_extract_inheritor_facts.py` performs a dry-run exact-field cross-check. Add `--apply` only when `issues` is empty. The extractor uses structured catalog/page fields for project–inheritor, ethnicity, category, applicant, and national-level facts; it intentionally excludes biography prose and conflicting birth-date fields.
 
+`python scripts/16_discover_whlyt_articles.py` discovers articles whose titles match “非遗” in the Qinghai culture-tourism news search. The maintainer confirmed full-text republication permission with attribution: every released chunk records “资料来源：青海省文化和旅游厅官网” and the page URL. Page-level checks still downgrade third-party, signed, explicitly restricted, or missing-source content to `metadata_and_facts_only`. The reviewed HTTPS certificate was expired, so direct collection uses the official HTTP endpoint, records a content hash, and requires `scripts/01_collect_sources.py --no-env-proxy`.
+
 `make qa` targets at least 300 generated records, matching the v0.1 QA floor. If the verified fact graph does not support enough distinct grounded questions, the generator warns and emits fewer records rather than padding the benchmark with duplicates or unsupported questions.
 
 Every derived stage stores an input fingerprint and parameters under `data/cache/checkpoints/`. Re-running with unchanged inputs reuses outputs. Collection checkpoints after every source and raw HTML is written through a temporary file before rename. FAISS also records the chunk fingerprint and embedding model, so an existing index is reused only when compatible.

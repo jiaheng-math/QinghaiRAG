@@ -16,6 +16,7 @@ from qinghai_rag.config import PATHS, ProjectPaths, load_project_config
 from qinghai_rag.io_utils import sha256_bytes, upsert_jsonl
 from qinghai_rag.schemas import SourceRecord
 from qinghai_rag.source_registry import SourceRegistry, decide_release_policy
+from qinghai_rag.whlyt_discovery import WHLYT_PUBLISHER, inspect_whlyt_article
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class FriendlyCrawler:
         interval_seconds: float | None = None,
         contact: str | None = None,
         timeout: float = 30.0,
+        trust_env: bool = True,
     ):
         config = load_project_config("sources_seed.yaml", paths)
         self.paths = paths
@@ -50,6 +52,7 @@ class FriendlyCrawler:
         self.user_agent = f"QinghaiRAG/0.1 (+{self.contact}; provenance-first research crawler)"
         self.timeout = timeout
         self.session = requests.Session()
+        self.session.trust_env = trust_env
         self.session.headers.update(
             {"User-Agent": self.user_agent, "Accept-Language": "zh-CN,zh;q=0.9"}
         )
@@ -133,11 +136,30 @@ class FriendlyCrawler:
         if html is None:
             html = html_bytes.decode("utf-8", errors="replace")
         title, text = clean_html(html)
+        configured_license = source.license_status.value
+        configured_policy = source.release_policy.value
+        policy_text = html
+        attribution = ""
+        policy_note = ""
+        if source.domain == "whlyt.qinghai.gov.cn":
+            inspection = inspect_whlyt_article(html)
+            policy_text = inspection["body_text"]
+            if inspection["eligible_full_text"]:
+                configured_license = "government_public"
+                configured_policy = "government_public"
+                attribution = f"资料来源：{WHLYT_PUBLISHER}官网（{source.url}）"
+                policy_note = "; attribution-required full text authorized by maintainer"
+            else:
+                configured_license = "restricted"
+                configured_policy = "metadata_and_facts_only"
+                policy_note = "; whlyt page downgraded: " + ",".join(
+                    inspection["reasons"]
+                )
         decision = decide_release_policy(
             source.url,
-            text=html,
-            configured_license=source.license_status.value,
-            configured_policy=source.release_policy.value,
+            text=policy_text,
+            configured_license=configured_license,
+            configured_policy=configured_policy,
         )
         updated = self._update_source(
             source,
@@ -148,7 +170,7 @@ class FriendlyCrawler:
             license_status=decision.license_status,
             release_policy=decision.release_policy,
             raw_text_release=decision.raw_text_release,
-            notes=source.notes + f"; policy after fetch: {decision.reason}",
+            notes=source.notes + f"; policy after fetch: {decision.reason}" + policy_note,
         )
         document = {
             "doc_id": make_doc_id(source.source_id, text),
@@ -161,6 +183,7 @@ class FriendlyCrawler:
             "release_policy": decision.release_policy,
             "raw_text_release": decision.raw_text_release,
             "raw_path": str(raw_path),
+            "attribution": attribution,
         }
         return CrawlResult(updated, document)
 

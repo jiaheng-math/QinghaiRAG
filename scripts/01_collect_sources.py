@@ -17,6 +17,11 @@ def main() -> None:
     )
     parser.add_argument("--interval", type=float, default=None)
     parser.add_argument("--contact", default=None)
+    parser.add_argument(
+        "--no-env-proxy",
+        action="store_true",
+        help="Ignore HTTP(S)_PROXY environment variables for direct-only official sites",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     sources = SourceRegistry().records()
@@ -30,7 +35,12 @@ def main() -> None:
     if not sources:
         print("Nothing to collect; all selected sources are complete or skipped.")
         return
-    crawler = FriendlyCrawler(PATHS, interval_seconds=args.interval, contact=args.contact)
+    crawler = FriendlyCrawler(
+        PATHS,
+        interval_seconds=args.interval,
+        contact=args.contact,
+        trust_env=not args.no_env_proxy,
+    )
     updated, documents = crawler.collect(sources, force=args.force)
     failures = sum(source.crawl_status == "failed" for source in updated)
     print(
