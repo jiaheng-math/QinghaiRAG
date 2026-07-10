@@ -124,6 +124,27 @@ class SourceRegistry:
         return "src_" + hashlib.sha256(url.encode()).hexdigest()[:12]
 
     @staticmethod
+    def preserve_collection_state(
+        configured: SourceRecord, existing: SourceRecord | None
+    ) -> SourceRecord:
+        if existing is None:
+            return configured
+        payload = configured.model_dump(mode="json")
+        previous = existing.model_dump(mode="json")
+        for field in ("retrieved_at", "crawl_status", "content_sha256"):
+            payload[field] = previous[field]
+        if existing.crawl_status.value != "pending":
+            for field in (
+                "title",
+                "license_status",
+                "release_policy",
+                "raw_text_release",
+                "notes",
+            ):
+                payload[field] = previous[field]
+        return SourceRecord.model_validate(payload)
+
+    @staticmethod
     def from_seed(seed: dict) -> SourceRecord:
         decision = decide_release_policy(
             seed["url"],

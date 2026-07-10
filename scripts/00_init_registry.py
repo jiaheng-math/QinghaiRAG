@@ -21,7 +21,15 @@ def main() -> None:
         else load_yaml(args.config)
     )
     registry = SourceRegistry()
-    records = [SourceRegistry.from_seed(seed) for seed in config.get("sources", [])]
+    existing = registry.by_id()
+    records = []
+    for seed in config.get("sources", []):
+        configured = SourceRegistry.from_seed(seed)
+        records.append(
+            SourceRegistry.preserve_collection_state(
+                configured, existing.get(configured.source_id)
+            )
+        )
     registry.upsert(records)
     print(f"Source registry contains {len(registry.records())} records: {registry.path}")
 
