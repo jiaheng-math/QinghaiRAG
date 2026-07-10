@@ -67,6 +67,28 @@ def test_prepare_review_batch_resumes_from_decisions():
     assert not ({item.question_id for item in batch} & {item.question_id for item in selected[:10]})
 
 
+def test_prepare_review_batch_requeues_stale_and_ignores_superseded_decisions():
+    qa = _qa_set()
+    selected = select_review_sample(qa, 30, "review_test")
+    stale = build_batch_decisions(
+        [selected[0]], "review_test", "batch_004", "reviewer"
+    )[0].model_copy(update={"qa_sha256": "0" * 64})
+    outside = next(item for item in qa if item.question_id not in {x.question_id for x in selected})
+    superseded = build_batch_decisions(
+        [outside], "review_test", "batch_005", "reviewer"
+    )[0]
+
+    batch, status = prepare_review_batch(
+        qa, [stale, superseded], "review_test", 30, 30
+    )
+
+    assert status["accepted"] == 0
+    assert status["stale_decisions"] == 1
+    assert status["superseded_decisions"] == 1
+    assert status["batch_id"] == "batch_006"
+    assert selected[0].question_id in {item.question_id for item in batch}
+
+
 def test_apply_qa_review_requires_minimum_and_exact_snapshot():
     qa = [_qa(1), _qa(2)]
     decisions = build_batch_decisions(qa, "review_test", "batch_001", "reviewer")
@@ -80,6 +102,31 @@ def test_apply_qa_review_requires_minimum_and_exact_snapshot():
     unchanged, report = apply_qa_manual_review(qa, [stale, decisions[1]], "review_test", 2)
     assert any(issue["issue"] == "qa_snapshot_changed" for issue in report["issues"])
     assert not any(item.manual_checked for item in unchanged)
+
+
+def test_apply_qa_review_ignores_decisions_outside_current_sample():
+    qa = [_qa(1), _qa(2)]
+    decisions = build_batch_decisions(qa, "review_test", "batch_001", "reviewer")
+    old = QAManualReviewDecision(
+        review_id="review_test",
+        batch_id="batch_000",
+        question_id="q_removed",
+        qa_sha256="0" * 64,
+        reviewed_at="2026-07-10",
+        reviewer="reviewer",
+    )
+
+    updated, report = apply_qa_manual_review(
+        qa,
+        [old, *decisions],
+        "review_test",
+        2,
+        allowed_question_ids={item.question_id for item in qa},
+    )
+
+    assert report["issues"] == []
+    assert report["ignored_decisions"] == 1
+    assert all(item.manual_checked for item in updated)
 
 
 def test_decision_schema_rejects_invalid_date():

@@ -13,6 +13,7 @@ from qinghai_rag.qa_manual_review import (
     build_batch_decisions,
     prepare_review_batch,
     render_review_batch,
+    select_review_sample,
 )
 from qinghai_rag.schemas import FactRecord, QARecord, SourceRecord
 
@@ -38,8 +39,13 @@ def main() -> None:
     decisions = read_jsonl(args.decisions, QAManualReviewDecision)
 
     if args.apply:
+        sample = select_review_sample(qa, args.target, args.review_id)
         updated, report = apply_qa_manual_review(
-            qa, decisions, args.review_id, minimum_accepted=args.target
+            qa,
+            decisions,
+            args.review_id,
+            minimum_accepted=args.target,
+            allowed_question_ids={item.question_id for item in sample},
         )
         report["applied"] = not report["issues"]
         print(json.dumps(report, ensure_ascii=False, indent=2))

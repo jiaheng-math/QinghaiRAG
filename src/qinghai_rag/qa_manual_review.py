@@ -106,11 +106,19 @@ def prepare_review_batch(
     if batch_size <= 0:
         raise ValueError("batch size must be positive")
     sample = select_review_sample(qa, target, review_id)
-    accepted_ids = {
-        decision.question_id
-        for decision in decisions
-        if decision.review_id == review_id and decision.decision == "accepted"
-    }
+    sample_by_id = {item.question_id: item for item in sample}
+    accepted_ids = set()
+    stale_decisions = 0
+    superseded_decisions = 0
+    review_decisions = [decision for decision in decisions if decision.review_id == review_id]
+    for decision in review_decisions:
+        item = sample_by_id.get(decision.question_id)
+        if item is None:
+            superseded_decisions += 1
+        elif qa_sha256(item) != decision.qa_sha256:
+            stale_decisions += 1
+        elif decision.decision == "accepted":
+            accepted_ids.add(decision.question_id)
     pending = [
         item for item in sample if item.question_id not in accepted_ids and not item.manual_checked
     ]
@@ -118,7 +126,14 @@ def prepare_review_batch(
         item.question_id in accepted_ids or item.manual_checked for item in sample
     )
     batch = pending[:batch_size]
-    batch_number = accepted_in_sample // batch_size + 1
+    batch_numbers = []
+    for decision in review_decisions:
+        if decision.batch_id.startswith("batch_"):
+            try:
+                batch_numbers.append(int(decision.batch_id.removeprefix("batch_")))
+            except ValueError:
+                pass
+    batch_number = max(batch_numbers, default=0) + 1
     return batch, {
         "review_id": review_id,
         "target": target,
@@ -126,6 +141,8 @@ def prepare_review_batch(
         "remaining": len(pending),
         "batch_id": f"batch_{batch_number:03d}" if batch else None,
         "batch_size": len(batch),
+        "stale_decisions": stale_decisions,
+        "superseded_decisions": superseded_decisions,
         "sample_type_distribution": dict(Counter(item.answer_type for item in sample)),
     }
 
@@ -194,11 +211,16 @@ def apply_qa_manual_review(
     decisions: list[QAManualReviewDecision],
     review_id: str,
     minimum_accepted: int,
+    allowed_question_ids: set[str] | None = None,
 ) -> tuple[list[QARecord], dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     decision_by_id: dict[str, QAManualReviewDecision] = {}
+    ignored_decisions = 0
     for decision in decisions:
         if decision.review_id != review_id:
+            continue
+        if allowed_question_ids is not None and decision.question_id not in allowed_question_ids:
+            ignored_decisions += 1
             continue
         previous = decision_by_id.get(decision.question_id)
         if previous and previous.qa_sha256 != decision.qa_sha256:
@@ -249,6 +271,7 @@ def apply_qa_manual_review(
     return updated, {
         "review_id": review_id,
         "accepted_decisions": len(decision_by_id),
+        "ignored_decisions": ignored_decisions,
         "valid_decisions": len(valid_ids),
         "new_manual_checks": newly_marked,
         "issues": issues,

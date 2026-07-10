@@ -1,3 +1,5 @@
+from collections import Counter
+
 import pytest
 
 from qinghai_rag.qa_generation import (
@@ -219,3 +221,88 @@ def test_unanswerable_project_questions_request_missing_project_information():
     assert any("保护评估" in item.question for item in questions)
     assert any("专项保护资金" in item.question for item in questions)
     assert any("保护规划文号" in item.question for item in questions)
+
+
+def test_single_fact_target_is_deterministically_spread_across_subjects():
+    facts = [
+        _category_fact(f"spread_{index}", f"项目{index:03d}", f"类别{index % 5}")
+        for index in range(100)
+    ]
+
+    first = generate_single_fact(facts, target=20)
+    second = generate_single_fact(list(reversed(facts)), target=20)
+    selected_indexes = [int(item.required_entities[0].removeprefix("项目")) for item in first]
+
+    assert [item.question_id for item in first] == [item.question_id for item in second]
+    assert max(selected_indexes) - min(selected_indexes) > 50
+
+
+def test_multi_hop_target_is_spread_across_subjects():
+    facts = []
+    for index in range(20):
+        subject = f"多跳项目{index:02d}"
+        facts.extend(
+            [
+                _category_fact(f"category_{index}", subject, f"类别{index % 3}"),
+                _declared_fact(f"declared_{index}", subject, f"青海省测试县{index:02d}"),
+                FactRecord(
+                    fact_id=f"level_{index}",
+                    subject=subject,
+                    subject_type="ICH_PROJECT",
+                    predicate="has_level",
+                    object=f"级别{index % 2}",
+                    object_type="CONCEPT",
+                    evidence_source_id=f"src_level_{index}",
+                    evidence_url=f"https://gov.example/level_{index}",
+                    extraction_method="table_parse",
+                    verified=True,
+                    confidence="high",
+                ),
+            ]
+        )
+
+    questions = generate_multi_hop(facts, target=20)
+
+    assert len({item.required_entities[0] for item in questions}) >= 10
+
+
+def test_comparison_target_spreads_subjects_and_relation_types():
+    facts = []
+    for index in range(20):
+        subject = f"藏品{index:02d}"
+        for predicate, value, object_type in [
+            ("belongs_to_category", f"类别{index % 3}", "CATEGORY"),
+            ("created_in_period", f"年代{index % 4}", "HISTORICAL_PERIOD"),
+            ("made_of", f"材质{index % 5}", "MATERIAL"),
+            ("held_by", "同一博物馆", "ORGANIZATION"),
+        ]:
+            facts.append(
+                FactRecord(
+                    fact_id=f"{predicate}_{index}",
+                    subject=subject,
+                    subject_type="MUSEUM_OBJECT",
+                    predicate=predicate,
+                    object=value,
+                    object_type=object_type,
+                    evidence_source_id=f"src_{index}",
+                    evidence_url=f"https://museum.example/{index}",
+                    extraction_method="rule",
+                    verified=True,
+                    confidence="high",
+                )
+            )
+
+    questions = generate_comparison(facts, target=20)
+    subject_counts = Counter(
+        subject for item in questions for subject in item.required_entities[:2]
+    )
+    used_labels = {
+        label
+        for label in ["类别", "年代", "质地"]
+        if any(f"中的{label}" in item.question for item in questions)
+    }
+
+    assert len(questions) == 20
+    assert max(subject_counts.values()) < 10
+    assert len(used_labels) >= 2
+    assert all("馆藏机构" not in item.question for item in questions)

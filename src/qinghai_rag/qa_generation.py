@@ -134,9 +134,7 @@ def generate_single_fact(facts: list[FactRecord], target: int) -> list[QARecord]
             "easy",
         )
         output.append(item)
-        if len(output) >= target:
-            break
-    return output
+    return sorted(output, key=lambda item: item.question_id)[:target]
 
 
 def generate_regional(facts: list[FactRecord], target: int) -> list[QARecord]:
@@ -217,9 +215,7 @@ def generate_multi_hop(facts: list[FactRecord], target: int) -> list[QARecord]:
                 "hard",
             )
             output[item.question_id] = item
-            if len(output) >= target:
-                return list(output.values())
-    return list(output.values())
+    return sorted(output.values(), key=lambda item: item.question_id)[:target]
 
 
 def generate_comparison(facts: list[FactRecord], target: int) -> list[QARecord]:
@@ -230,22 +226,50 @@ def generate_comparison(facts: list[FactRecord], target: int) -> list[QARecord]:
         by_subject[(normalize_entity_name(fact.subject), fact.subject_type)][fact.predicate].append(
             fact
         )
+    keys_by_type: dict[str, list[tuple[str, str]]] = defaultdict(list)
+    for key in by_subject:
+        keys_by_type[key[1]].append(key)
+    pairs = []
+    for subject_type, keys in keys_by_type.items():
+        ordered = sorted(
+            keys,
+            key=lambda key: hashlib.sha256(
+                f"{subject_type}\0{key[0]}".encode()
+            ).hexdigest(),
+        )
+        pairs.extend(itertools.combinations(ordered, 2))
+    pairs.sort(
+        key=lambda pair: hashlib.sha256(
+            f"{pair[0][1]}\0{pair[0][0]}\0{pair[1][0]}".encode()
+        ).hexdigest()
+    )
+
     output: dict[str, QARecord] = {}
-    for left_key, right_key in itertools.combinations(sorted(by_subject), 2):
+    for left_key, right_key in pairs:
         left_name, left_type = left_key
-        right_name, right_type = right_key
-        if left_type != right_type:
-            continue
+        right_name, _right_type = right_key
         common = sorted(set(by_subject[left_key]) & set(by_subject[right_key]))
         if not common:
             continue
-        predicate = common[0]
-        left_group = by_subject[left_key][predicate]
-        right_group = by_subject[right_key][predicate]
-        left_values = _canonical_values(left_group)
-        right_values = _canonical_values(right_group)
-        if len(left_values) != 1 or len(right_values) != 1:
+        eligible = []
+        for predicate in common:
+            left_group = by_subject[left_key][predicate]
+            right_group = by_subject[right_key][predicate]
+            left_values = _canonical_values(left_group)
+            right_values = _canonical_values(right_group)
+            if (
+                len(left_values) == 1
+                and len(right_values) == 1
+                and left_values != right_values
+            ):
+                eligible.append(
+                    (predicate, left_group, right_group, left_values, right_values)
+                )
+        if not eligible:
             continue
+        predicate, left_group, right_group, left_values, right_values = eligible[
+            _template_variant(f"{left_type}\0{left_name}\0{right_name}", len(eligible))
+        ]
         relation_label = RELATION_LABELS[predicate]
         question = f"{left_name}和{right_name}在当前数据中的{relation_label}分别是什么？"
         answer = f"{left_name}：{left_values[0]}；{right_name}：{right_values[0]}。"
