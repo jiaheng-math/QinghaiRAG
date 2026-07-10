@@ -250,8 +250,16 @@ Tests cover schemas, conservative release policy, fact extraction, Chinese-aware
 - [Datasheet](docs/DATASHEET.md)
 - [Source policy](docs/SOURCE_POLICY.md)
 - [Annotation guide](docs/ANNOTATION_GUIDE.md)
+- [Technical report](docs/TECHNICAL_REPORT.md) ([versioned PDF](output/pdf/QinghaiRAG_Technical_Report_1.0.0-rc1.pdf))
 - [RAG report template](docs/RAG_REPORT_TEMPLATE.md)
 - [AutoDL runbook](docs/AUTODL.md)
+
+Render the versioned Technical Report PDF with:
+
+```bash
+python -m pip install -e ".[docs]"
+python scripts/render_technical_report.py
+```
 
 ## Roadmap
 

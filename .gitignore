@@ -20,6 +20,7 @@ data/cache/**
 autodl-tmp/
 checkpoints/
 outputs/
+tmp/
 wandb/
 
 # Local HF export; release JSONL files remain tracked.
