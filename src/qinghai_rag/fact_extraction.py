@@ -122,7 +122,13 @@ def extract_table_facts(html: str, source: SourceRecord) -> list[FactRecord]:
                 continue
             evidence = "；".join(f"{header}：{value}" for header, value in zip(headers, cells))
             for field, (predicate, object_type) in RELATIONS.items():
-                for obj in re.split(r"[、,，;/；]", values.get(field, "")):
+                raw_value = values.get(field, "")
+                objects = (
+                    [raw_value]
+                    if field == "category"
+                    else re.split(r"[、,，;/；]", raw_value)
+                )
+                for obj in objects:
                     if obj.strip():
                         facts.append(
                             make_fact(
@@ -165,10 +171,17 @@ def deduplicate_facts(facts: Iterable[FactRecord]) -> list[FactRecord]:
 def merge_extracted_facts(
     existing: Iterable[FactRecord], extracted: Iterable[FactRecord]
 ) -> list[FactRecord]:
-    merged = {
+    reviewed = {
         fact.fact_id: fact for fact in existing if fact.verified or fact.manual_checked
     }
-    for fact in extracted:
-        if fact.fact_id not in merged:
-            merged[fact.fact_id] = fact
+    merged = dict(reviewed)
+    semantic_keys = {
+        (fact.subject, fact.predicate, fact.object) for fact in reviewed.values()
+    }
+    for fact in sorted(extracted, key=lambda item: item.fact_id):
+        key = (fact.subject, fact.predicate, fact.object)
+        if fact.fact_id in reviewed or key in semantic_keys:
+            continue
+        merged[fact.fact_id] = fact
+        semantic_keys.add(key)
     return list(merged.values())

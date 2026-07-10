@@ -68,6 +68,29 @@ def test_strips_repeated_column_labels_from_responsive_tables():
     }
 
 
+def test_category_name_containing_dunhao_is_not_split():
+    source = SourceRecord(
+        source_id="src_test",
+        title="赛马会",
+        url="https://gov.example/table",
+        domain="gov.example",
+        retrieved_at="2026-07-10",
+        release_policy="metadata_and_facts_only",
+        raw_text_release=False,
+        crawl_status="parsed",
+    )
+    html = """
+    <table>
+      <tr><th>项目名称</th><th>类别</th></tr>
+      <tr><td>赛马会</td><td>传统体育、游艺与杂技</td></tr>
+    </table>
+    """
+    facts = extract_table_facts(html, source)
+    assert [(fact.predicate, fact.object) for fact in facts] == [
+        ("belongs_to_category", "传统体育、游艺与杂技")
+    ]
+
+
 def test_ihchina_page_only_extracts_the_project_named_by_the_page_title():
     source = SourceRecord(
         source_id="src_ihchina_12934",
@@ -98,16 +121,22 @@ def test_ihchina_page_only_extracts_the_project_named_by_the_page_title():
     } == {"青海省玉树市"}
 
 
-def _fact(fact_id: str, *, verified: bool = False) -> FactRecord:
+def _fact(
+    fact_id: str,
+    *,
+    verified: bool = False,
+    source_id: str = "src_1",
+    fact_object: str = "传统美术",
+) -> FactRecord:
     return FactRecord(
         fact_id=fact_id,
         subject="项目",
         subject_type="ICH_PROJECT",
         predicate="belongs_to_category",
-        object="传统美术",
+        object=fact_object,
         object_type="CATEGORY",
-        evidence_source_id="src_1",
-        evidence_url="https://gov.example/1",
+        evidence_source_id=source_id,
+        evidence_url=f"https://gov.example/{source_id}",
         extraction_method="table_parse",
         verified=verified,
         manual_checked=verified,
@@ -118,10 +147,19 @@ def _fact(fact_id: str, *, verified: bool = False) -> FactRecord:
 def test_merge_preserves_reviewed_facts_and_prunes_stale_unreviewed_facts():
     reviewed = _fact("fact_reviewed", verified=True)
     refreshed_copy = _fact("fact_reviewed")
-    current = _fact("fact_current")
+    current = _fact("fact_current", fact_object="传统技艺")
     stale = _fact("fact_stale")
 
     merged = merge_extracted_facts([reviewed, stale], [refreshed_copy, current])
 
     assert {fact.fact_id for fact in merged} == {"fact_reviewed", "fact_current"}
     assert next(fact for fact in merged if fact.fact_id == "fact_reviewed").verified is True
+
+
+def test_merge_deduplicates_unreviewed_semantic_triples_across_sources():
+    first = _fact("fact_first", source_id="src_1")
+    duplicate = _fact("fact_duplicate", source_id="src_2")
+
+    merged = merge_extracted_facts([], [duplicate, first])
+
+    assert [fact.fact_id for fact in merged] == ["fact_duplicate"]
