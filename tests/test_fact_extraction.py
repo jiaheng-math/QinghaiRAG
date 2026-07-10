@@ -76,6 +76,7 @@ def test_ihchina_page_only_extracts_the_project_named_by_the_page_title():
         source_type="national_official_database",
         url="https://www.ihchina.cn/project_details/12934.html",
         domain="ihchina.cn",
+        region=["青海省", "青海省玉树市"],
         retrieved_at="2026-07-10",
         release_policy="metadata_and_facts_only",
         raw_text_release=False,
@@ -85,12 +86,16 @@ def test_ihchina_page_only_extracts_the_project_named_by_the_page_title():
     <table>
       <tr><th>项目名称</th><th>类别</th><th>申报地区或单位</th></tr>
       <tr><td>锅庄舞(囊谦卓干玛)</td><td>传统舞蹈</td><td>青海省囊谦县</td></tr>
+      <tr><td>锅庄舞(玉树卓舞)</td><td>传统舞蹈</td><td>青海省称多县</td></tr>
       <tr><td>锅庄舞(玉树卓舞)</td><td>传统舞蹈</td><td>青海省玉树市</td></tr>
       <tr><td>锅庄舞(称多白龙卓舞)</td><td>传统舞蹈</td><td>青海省称多县</td></tr>
     </table>
     """
     facts = extract_table_facts(html, source)
     assert {fact.subject for fact in facts} == {"锅庄舞(玉树卓舞)"}
+    assert {
+        fact.object for fact in facts if fact.predicate == "declared_by"
+    } == {"青海省玉树市"}
 
 
 def _fact(fact_id: str, *, verified: bool = False) -> FactRecord:

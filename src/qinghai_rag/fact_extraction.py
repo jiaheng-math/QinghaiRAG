@@ -48,6 +48,13 @@ def _matches_source_project(project: str, source: SourceRecord) -> bool:
     return _normalized_project_key(project) == _normalized_project_key(page_project)
 
 
+def _matches_source_applicant(declared_by: str, source: SourceRecord) -> bool:
+    if not source.source_id.startswith("src_ihchina_"):
+        return True
+    expected = source.region[-1] if source.region else source.province
+    return _normalized_project_key(declared_by) == _normalized_project_key(expected)
+
+
 def stable_fact_id(subject: str, predicate: str, obj: str, source_id: str) -> str:
     digest = hashlib.sha256(f"{subject}\0{predicate}\0{obj}\0{source_id}".encode()).hexdigest()[:12]
     return f"fact_{digest}"
@@ -110,6 +117,8 @@ def extract_table_facts(html: str, source: SourceRecord) -> list[FactRecord]:
                 continue
             declared_by = values.get("declared_by", "")
             if declared_by and source.province and source.province not in declared_by:
+                continue
+            if declared_by and not _matches_source_applicant(declared_by, source):
                 continue
             evidence = "；".join(f"{header}：{value}" for header, value in zip(headers, cells))
             for field, (predicate, object_type) in RELATIONS.items():
