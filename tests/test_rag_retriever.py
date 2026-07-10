@@ -4,6 +4,7 @@ from qinghai_rag.rag.retriever import (
     EvidenceAllocator,
     GraphRetriever,
     HybridRetriever,
+    _predicate_query_bonus,
     fuse_dense_sparse,
 )
 
@@ -156,12 +157,21 @@ def test_hybrid_rerank_reserves_graph_evidence_when_open_text_fills_budget():
             {
                 "evidence_id": "f1",
                 "source_id": "s4",
-                "score": 0.7,
+                "score": 0.9,
                 "text": "海南州 — declared_by — 项目甲",
                 "source_url": "https://b",
                 "confidence": "high",
                 "kind": "graph",
-            }
+            },
+            {
+                "evidence_id": "f2",
+                "source_id": "s5",
+                "score": 0.4,
+                "text": "项目甲 — inherited_by — 这是一条更长但不能回答申报地区问题的传承人事实",
+                "source_url": "https://c",
+                "confidence": "high",
+                "kind": "graph",
+            },
         ]
     )
     retriever = HybridRetriever(vector, graph, reranker=FakeReranker())
@@ -189,3 +199,10 @@ def test_graph_matching_prefers_longest_overlapping_entity_mention():
     matched = retriever._matched_nodes("青海省海南藏族自治州的藏族拉伊有哪些记录？")
 
     assert matched == ["prefecture", "project"]
+
+
+def test_graph_predicate_bonus_tracks_explicit_query_intent():
+    query = "青海省海北藏族自治州申报了哪些非遗项目？"
+
+    assert _predicate_query_bonus(query, "declared_by") == 0.2
+    assert _predicate_query_bonus(query, "inherited_by") == 0.0

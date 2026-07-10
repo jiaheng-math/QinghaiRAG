@@ -17,6 +17,20 @@ def _query_overlap(query: str, text: str) -> float:
     return len(chars & set(text)) / max(len(chars), 1)
 
 
+_PREDICATE_QUERY_CUES = {
+    "declared_by": ("申报", "申报方", "申报地区", "申报单位"),
+    "belongs_to_category": ("类别", "分类", "哪一类", "属于"),
+    "inherited_by": ("传承人", "传承者", "谁传承"),
+    "associated_with_ethnic_group": ("民族", "族群"),
+    "has_level": ("级别", "等级", "国家级"),
+    "located_in": ("位于", "所在地", "哪里"),
+}
+
+
+def _predicate_query_bonus(query: str, predicate: str) -> float:
+    return 0.2 if any(cue in query for cue in _PREDICATE_QUERY_CUES.get(predicate, ())) else 0.0
+
+
 class VectorRetriever:
     def __init__(
         self,
@@ -135,7 +149,13 @@ class GraphRetriever:
             )
             confidence = {"high": 1.0, "medium": 0.75, "low": 0.4}.get(fact.confidence, 0.5)
             text = f"{fact.subject} — {fact.predicate} — {fact.object}"
-            score = 0.5 * proximity + 0.3 * confidence + 0.2 * _query_overlap(query, text)
+            score = min(
+                1.0,
+                0.5 * proximity
+                + 0.3 * confidence
+                + 0.2 * _query_overlap(query, text)
+                + _predicate_query_bonus(query, fact.predicate),
+            )
             source = self.sources.get(fact.evidence_source_id)
             results[fact.fact_id] = {
                 "evidence_id": fact.fact_id,
@@ -195,7 +215,10 @@ class EvidenceAllocator:
             if not selected_ids & graph_evidence_ids:
                 best_graph = max(
                     (item for key, item in merged.items() if key in graph_evidence_ids),
-                    key=lambda item: item["allocation_score"],
+                    key=lambda item: (
+                        float(item.get("retrieval_score", item["allocation_score"])),
+                        item["allocation_score"],
+                    ),
                 )
                 if len(selected) < budget:
                     selected.append(best_graph)
