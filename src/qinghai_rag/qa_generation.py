@@ -148,13 +148,13 @@ def generate_regional(facts: list[FactRecord], target: int) -> list[QARecord]:
             groups[(fact.predicate, fact.object)].append(fact)
     output: dict[str, QARecord] = {}
     located_templates = [
-        "{region}地区有哪些已收录的非遗项目？",
-        "根据当前事实表，哪些项目与{region}相关？",
-        "请列出数据集中关联到{region}的项目。",
-        "在现有已核验记录中，{region}关联了哪些项目？",
-        "仅依据当前数据，{region}的相关项目有哪些？",
-        "汇总当前记录：{region}包含哪些相关项目？",
-        "不使用外部知识时，可列出哪些{region}相关项目？",
+        "流传地区记录为{region}的已收录非遗项目有哪些？",
+        "根据当前事实表，哪些项目的流传地区是{region}？",
+        "请列出数据集中流传地区为{region}的项目。",
+        "在现有已核验记录中，哪些项目与{region}这一流传地区对应？",
+        "仅依据当前数据，可列出哪些流传于{region}的项目？",
+        "汇总当前记录：流传地区为{region}的项目有哪些？",
+        "不使用外部知识时，能确认哪些项目的流传地区是{region}？",
     ]
     declared_templates = [
         "{region}申报了哪些已收录的非遗项目？",
