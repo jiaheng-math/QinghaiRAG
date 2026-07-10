@@ -2,6 +2,7 @@ import pytest
 
 from qinghai_rag.qa_generation import (
     generate_comparison,
+    generate_multi_hop,
     generate_regional,
     generate_single_fact,
     resolve_qa_minimum,
@@ -95,3 +96,80 @@ def test_museum_single_fact_question_uses_material_label():
 
     assert question.question == "嵌松石立凤金饰件的质地是什么？"
     assert question.answer == "金。"
+
+
+def test_museum_category_question_does_not_call_object_a_project():
+    fact = FactRecord(
+        fact_id="museum_category",
+        subject="铜质僧帽壶（展品ID：68）",
+        subject_type="MUSEUM_OBJECT",
+        predicate="belongs_to_category",
+        object="金属工艺",
+        object_type="CATEGORY",
+        evidence_source_id="src_museum_68",
+        evidence_url="https://museum.example/68",
+        extraction_method="rule",
+        verified=True,
+        confidence="high",
+    )
+
+    [question] = generate_single_fact([fact], target=1)
+
+    assert "项目类别" not in question.question
+    assert "文物" in question.question
+
+
+def test_single_fact_skips_subject_relation_with_multiple_answers():
+    facts = [
+        _declared_fact("one", "藏族服饰", "青海省玉树藏族自治州"),
+        _declared_fact("two", "藏族服饰", "青海省海南藏族自治州"),
+    ]
+
+    assert generate_single_fact(facts, target=10) == []
+
+
+def test_regional_aggregation_deduplicates_reviewed_project_aliases():
+    facts = [
+        _declared_fact(
+            "one", "藏族金属锻造技艺(藏刀锻制技艺)", "青海省玉树藏族自治州"
+        ),
+        _declared_fact(
+            "two", "藏族金属锻制技艺(藏刀锻制技艺)", "青海省玉树藏族自治州"
+        ),
+    ]
+
+    questions = generate_regional(facts, target=10)
+
+    assert len(questions) == 1
+    assert questions[0].answer == "藏族金属锻造技艺(藏刀锻制技艺)。"
+    assert questions[0].evidence_fact_ids == ["one", "two"]
+
+
+def test_comparison_stays_within_one_entity_type():
+    project = _category_fact("project", "官磨药香", "传统技艺")
+    museum_payload = _category_fact("museum", "《三昧王经》", "书法艺术").model_dump(
+        mode="json"
+    )
+    museum_payload["subject_type"] = "MUSEUM_OBJECT"
+    museum = FactRecord.model_validate(museum_payload)
+
+    assert generate_comparison([project, museum], target=1) == []
+
+
+def test_multi_hop_lists_all_values_for_multi_value_relation():
+    declared = _declared_fact("declared", "热贡艺术", "青海省同仁县")
+    inheritors = []
+    for index, person in enumerate(["西合道", "娘本"], start=1):
+        payload = _declared_fact(str(index), "热贡艺术", person).model_dump(mode="json")
+        payload.update(
+            {
+                "predicate": "inherited_by",
+                "object_type": "PERSON",
+            }
+        )
+        inheritors.append(FactRecord.model_validate(payload))
+
+    [question] = generate_multi_hop([declared, *inheritors], target=1)
+
+    assert question.answer == "申报地区或单位：青海省同仁县；代表性传承人：娘本、西合道。"
+    assert question.evidence_fact_ids == ["1", "2", "declared"]

@@ -6,6 +6,7 @@ import logging
 import re
 from collections import defaultdict
 
+from qinghai_rag.normalize import normalize_entity_name
 from qinghai_rag.schemas import FactRecord, QARecord
 
 LOGGER = logging.getLogger(__name__)
@@ -91,24 +92,51 @@ SINGLE_TEMPLATES = {
     "made_of": ["{s}的质地是什么？", "当前资料记录的{s}由什么材质制成？"],
 }
 
+MUSEUM_SINGLE_TEMPLATES = {
+    "belongs_to_category": ["{s}属于哪类文物？", "当前资料记录的{s}文物类别是什么？"],
+}
+
+
+def _canonical_values(facts: list[FactRecord]) -> list[str]:
+    return sorted({normalize_entity_name(fact.object) for fact in facts})
+
+
+def _template_variant(key: str, size: int) -> int:
+    return int(hashlib.sha256(key.encode()).hexdigest(), 16) % size
+
 
 def generate_single_fact(facts: list[FactRecord], target: int) -> list[QARecord]:
-    eligible = [fact for fact in facts if fact.predicate in SINGLE_TEMPLATES]
-    output: dict[str, QARecord] = {}
-    if not eligible:
-        return []
-    for fact, variant in itertools.islice(
-        itertools.cycle(itertools.product(eligible, range(2))), target * 4
-    ):
-        template = SINGLE_TEMPLATES[fact.predicate][variant % len(SINGLE_TEMPLATES[fact.predicate])]
-        question = template.format(s=fact.subject)
-        item = _qa(
-            question, f"{fact.object}。", "single_fact", [fact], [fact.subject, fact.object], "easy"
+    grouped: dict[tuple[str, str, str], list[FactRecord]] = defaultdict(list)
+    for fact in facts:
+        if fact.predicate in SINGLE_TEMPLATES:
+            grouped[(normalize_entity_name(fact.subject), fact.subject_type, fact.predicate)].append(
+                fact
+            )
+
+    output = []
+    for (subject, subject_type, predicate), group in sorted(grouped.items()):
+        objects = _canonical_values(group)
+        if len(objects) != 1:
+            continue
+        templates = (
+            MUSEUM_SINGLE_TEMPLATES.get(predicate, SINGLE_TEMPLATES[predicate])
+            if subject_type == "MUSEUM_OBJECT"
+            else SINGLE_TEMPLATES[predicate]
         )
-        output[item.question_id] = item
+        variant = _template_variant(f"{subject_type}\0{subject}\0{predicate}", len(templates))
+        question = templates[variant].format(s=subject)
+        item = _qa(
+            question,
+            f"{objects[0]}。",
+            "single_fact",
+            group,
+            [subject, objects[0]],
+            "easy",
+        )
+        output.append(item)
         if len(output) >= target:
             break
-    return list(output.values())
+    return output
 
 
 def generate_regional(facts: list[FactRecord], target: int) -> list[QARecord]:
@@ -139,44 +167,53 @@ def generate_regional(facts: list[FactRecord], target: int) -> list[QARecord]:
         "汇总当前记录：{region}对应的申报项目有哪些？",
         "不使用外部知识时，能确认哪些项目由{region}申报？",
     ]
-    for (predicate, region), group in groups.items():
-        projects = sorted({fact.subject for fact in group})
+    for (predicate, region), group in sorted(groups.items()):
+        projects = sorted({normalize_entity_name(fact.subject) for fact in group})
         answer = "、".join(projects) + "。"
         templates = located_templates if predicate == "located_in" else declared_templates
-        for template in templates:
-            item = _qa(
-                template.format(region=region),
-                answer,
-                "regional_aggregation",
-                group,
-                [region, *projects],
-                "medium",
-            )
-            output[item.question_id] = item
-            if len(output) >= target:
-                return list(output.values())
+        variant = _template_variant(f"{predicate}\0{region}", len(templates))
+        item = _qa(
+            templates[variant].format(region=region),
+            answer,
+            "regional_aggregation",
+            group,
+            [region, *projects],
+            "medium",
+        )
+        output[item.question_id] = item
+        if len(output) >= target:
+            return list(output.values())
     return list(output.values())
 
 
 def generate_multi_hop(facts: list[FactRecord], target: int) -> list[QARecord]:
-    by_subject: dict[str, list[FactRecord]] = defaultdict(list)
+    by_subject: dict[tuple[str, str], dict[str, list[FactRecord]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
     for fact in facts:
-        by_subject[fact.subject].append(fact)
+        by_subject[(normalize_entity_name(fact.subject), fact.subject_type)][fact.predicate].append(
+            fact
+        )
     output: dict[str, QARecord] = {}
-    for subject, group in by_subject.items():
-        for left, right in itertools.combinations(group, 2):
-            if left.predicate == right.predicate:
-                continue
-            left_label = RELATION_LABELS[left.predicate]
-            right_label = RELATION_LABELS[right.predicate]
+    for (subject, _subject_type), relations in sorted(by_subject.items()):
+        for left_predicate, right_predicate in itertools.combinations(sorted(relations), 2):
+            left_group = relations[left_predicate]
+            right_group = relations[right_predicate]
+            left_values = _canonical_values(left_group)
+            right_values = _canonical_values(right_group)
+            left_label = RELATION_LABELS[left_predicate]
+            right_label = RELATION_LABELS[right_predicate]
             question = f"{subject}的{left_label}和{right_label}分别是什么？"
-            answer = f"{left_label}：{left.object}；{right_label}：{right.object}。"
+            answer = (
+                f"{left_label}：{'、'.join(left_values)}；"
+                f"{right_label}：{'、'.join(right_values)}。"
+            )
             item = _qa(
                 question,
                 answer,
                 "multi_hop",
-                [left, right],
-                [subject, left.object, right.object],
+                [*left_group, *right_group],
+                [subject, *left_values, *right_values],
                 "hard",
             )
             output[item.question_id] = item
@@ -186,25 +223,38 @@ def generate_multi_hop(facts: list[FactRecord], target: int) -> list[QARecord]:
 
 
 def generate_comparison(facts: list[FactRecord], target: int) -> list[QARecord]:
-    by_subject: dict[str, dict[str, FactRecord]] = defaultdict(dict)
+    by_subject: dict[tuple[str, str], dict[str, list[FactRecord]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
     for fact in facts:
-        by_subject[fact.subject][fact.predicate] = fact
+        by_subject[(normalize_entity_name(fact.subject), fact.subject_type)][fact.predicate].append(
+            fact
+        )
     output: dict[str, QARecord] = {}
-    for left_name, right_name in itertools.combinations(sorted(by_subject), 2):
-        common = sorted(set(by_subject[left_name]) & set(by_subject[right_name]))
+    for left_key, right_key in itertools.combinations(sorted(by_subject), 2):
+        left_name, left_type = left_key
+        right_name, right_type = right_key
+        if left_type != right_type:
+            continue
+        common = sorted(set(by_subject[left_key]) & set(by_subject[right_key]))
         if not common:
             continue
         predicate = common[0]
-        left, right = by_subject[left_name][predicate], by_subject[right_name][predicate]
+        left_group = by_subject[left_key][predicate]
+        right_group = by_subject[right_key][predicate]
+        left_values = _canonical_values(left_group)
+        right_values = _canonical_values(right_group)
+        if len(left_values) != 1 or len(right_values) != 1:
+            continue
         relation_label = RELATION_LABELS[predicate]
         question = f"{left_name}和{right_name}在当前数据中的{relation_label}分别是什么？"
-        answer = f"{left_name}：{left.object}；{right_name}：{right.object}。"
+        answer = f"{left_name}：{left_values[0]}；{right_name}：{right_values[0]}。"
         item = _qa(
             question,
             answer,
             "comparison",
-            [left, right],
-            [left_name, right_name, left.object, right.object],
+            [*left_group, *right_group],
+            [left_name, right_name, left_values[0], right_values[0]],
             "medium",
         )
         output[item.question_id] = item
@@ -242,14 +292,25 @@ def generate_qa(facts: list[FactRecord], minimum: int = 100) -> list[QARecord]:
         "comparison": max(10, round(minimum * 0.1)),
         "unanswerable": max(10, minimum - round(minimum * 0.9)),
     }
-    records = [
-        *generate_single_fact(verified, quotas["single"]),
-        *generate_regional(verified, quotas["regional"]),
-        *generate_multi_hop(verified, quotas["multi"]),
-        *generate_comparison(verified, quotas["comparison"]),
-        *generate_unanswerable(verified, quotas["unanswerable"]),
-    ]
-    unique = {record.question_id: record for record in records}
+    pools = {
+        "single": generate_single_fact(verified, minimum),
+        "regional": generate_regional(verified, minimum),
+        "multi": generate_multi_hop(verified, minimum),
+        "comparison": generate_comparison(verified, minimum),
+        "unanswerable": generate_unanswerable(verified, quotas["unanswerable"]),
+    }
+    unique: dict[str, QARecord] = {}
+    for kind in ("single", "regional", "multi", "comparison", "unanswerable"):
+        for record in pools[kind][: quotas[kind]]:
+            unique[record.question_id] = record
+    if len(unique) < minimum:
+        for kind in ("single", "multi", "comparison", "regional"):
+            for record in pools[kind]:
+                unique[record.question_id] = record
+                if len(unique) >= minimum:
+                    break
+            if len(unique) >= minimum:
+                break
     if len(unique) < minimum:
         LOGGER.warning(
             "Generated %s/%s QA records; add more verified facts or manually annotate missing types.",
