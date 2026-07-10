@@ -47,6 +47,8 @@ Mixed-level resource inventories may set `level`, `source_sequence`, `inheritors
 
 Museum-object manual review samples live under `annotations/museum_reviews/`. Each fixed row records the official exhibit ID and all four expected relation values. The review applier requires a parsed source, a recorded content hash, an exact four-fact set, and high-confidence deterministic verification before it can set `manual_checked=true`; the source content hash and review ID are added to every reviewed fact.
 
+QA review uses a deterministic stratified sample across all five benchmark question types. Run `python scripts/25_review_qa.py --batch-size 20` to display one batch with its expected answer, exact evidence facts, source titles, and URLs. Only after the reviewer has checked every item should they enter the batch-specific confirmation string. Decisions persist under `annotations/qa_reviews/` with a hash of the reviewed QA snapshot, so regenerated or edited questions cannot inherit an old approval. After 300 accepted decisions, run `python scripts/25_review_qa.py --apply`; the command refuses to set `manual_checked=true` if a snapshot changed or the minimum is not met.
+
 ## Conflicts
 
 Retain both evidence-backed facts, mark them unverified or lower confidence, and explain the conflict in `notes`. Do not create a deterministic synthetic sentence or QA answer until a reviewer resolves the scope/date/identity issue. Do not silently select the newest page without checking what changed.

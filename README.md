@@ -158,6 +158,13 @@ python scripts/24_apply_museum_manual_review.py
 python scripts/24_apply_museum_manual_review.py --apply
 ```
 
+Review the V1 QA sample in resumable batches, then apply only after 300 exact QA snapshots have been accepted:
+
+```bash
+python scripts/25_review_qa.py --batch-size 20
+python scripts/25_review_qa.py --apply
+```
+
 The importer is idempotent, refuses a changed attachment hash, marks reviewed facts with `extraction_method=manual_review`, and never releases the scanned PDF as open text.
 
 ## Release policy
