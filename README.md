@@ -123,6 +123,13 @@ python scripts/19_discover_guide_tourism.py --no-env-proxy
 
 Registration is a separate explicit step via `--register`. All discovered Guide pages default to `metadata_and_facts_only`; page-level provenance and reuse checks are still required before collection or release.
 
+After collection, audit cleaned-text quality before treating every fetched page as parsed coverage. The default dry run reports pages below 100 cleaned characters; `--apply` retains their source metadata but changes their crawl status from `parsed` to `fetched`, so image-only and title-only pages do not inflate parsed-source coverage:
+
+```bash
+python scripts/20_audit_document_quality.py --source-prefix src_guide_content_
+python scripts/20_audit_document_quality.py --source-prefix src_guide_content_ --apply
+```
+
 The importer is idempotent, refuses a changed attachment hash, marks reviewed facts with `extraction_method=manual_review`, and never releases the scanned PDF as open text.
 
 ## Release policy
