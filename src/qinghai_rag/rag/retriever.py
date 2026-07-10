@@ -23,6 +23,9 @@ _PREDICATE_QUERY_CUES = {
     "inherited_by": ("传承人", "传承者", "谁传承"),
     "associated_with_ethnic_group": ("民族", "族群"),
     "has_level": ("级别", "等级", "国家级"),
+    "held_by": ("馆藏", "收藏", "哪个馆", "博物馆"),
+    "created_in_period": ("年代", "时期", "朝代"),
+    "made_of": ("质地", "材质", "材料", "制成"),
     "located_in": ("位于", "所在地", "哪里"),
 }
 

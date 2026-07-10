@@ -144,6 +144,13 @@ After registration, collect exhibit details through the dedicated API collector.
 python scripts/22_collect_tibetan_museum_exhibits.py --no-env-proxy --interval 0.5
 ```
 
+Once every detail is collected, preview deterministically verified museum-object relations before applying them. The builder requires exact agreement between list metadata, detail fields, registry URL/status, and stored content hash. It creates category, holding institution, historical period, and material relations but does not mark them as manually checked:
+
+```bash
+python scripts/23_build_tibetan_museum_facts.py
+python scripts/23_build_tibetan_museum_facts.py --apply
+```
+
 The importer is idempotent, refuses a changed attachment hash, marks reviewed facts with `extraction_method=manual_review`, and never releases the scanned PDF as open text.
 
 ## Release policy

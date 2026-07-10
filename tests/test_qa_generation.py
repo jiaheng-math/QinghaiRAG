@@ -3,6 +3,7 @@ import pytest
 from qinghai_rag.qa_generation import (
     generate_comparison,
     generate_regional,
+    generate_single_fact,
     resolve_qa_minimum,
 )
 from qinghai_rag.schemas import FactRecord
@@ -73,3 +74,24 @@ def test_qa_minimum_rejects_missing_or_nonpositive_values():
         resolve_qa_minimum(None, {})
     with pytest.raises(ValueError, match="must be positive"):
         resolve_qa_minimum(0, {"tiers": {}})
+
+
+def test_museum_single_fact_question_uses_material_label():
+    fact = FactRecord(
+        fact_id="museum_1",
+        subject="嵌松石立凤金饰件",
+        subject_type="MUSEUM_OBJECT",
+        predicate="made_of",
+        object="金",
+        object_type="MATERIAL",
+        evidence_source_id="src_museum_1",
+        evidence_url="https://museum.example/1",
+        extraction_method="rule",
+        verified=True,
+        confidence="high",
+    )
+
+    [question] = generate_single_fact([fact], target=1)
+
+    assert question.question == "嵌松石立凤金饰件的质地是什么？"
+    assert question.answer == "金。"

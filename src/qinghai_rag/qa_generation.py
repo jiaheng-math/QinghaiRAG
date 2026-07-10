@@ -22,6 +22,9 @@ RELATION_LABELS = {
     "related_to_festival": "相关节庆或活动",
     "mentioned_in_source": "相关来源或概念",
     "related_to_concept": "相关概念",
+    "held_by": "馆藏机构",
+    "created_in_period": "年代",
+    "made_of": "质地",
 }
 
 
@@ -83,6 +86,9 @@ SINGLE_TEMPLATES = {
         "{s}与哪个民族相关？",
         "当前资料记录的{s}相关民族是什么？",
     ],
+    "held_by": ["{s}由哪个机构收藏？", "当前资料记录的{s}馆藏机构是什么？"],
+    "created_in_period": ["{s}属于哪个年代？", "当前资料记录的{s}年代是什么？"],
+    "made_of": ["{s}的质地是什么？", "当前资料记录的{s}由什么材质制成？"],
 }
 
 

@@ -19,6 +19,9 @@ PREDICATE_SUMMARY_TEMPLATES = {
     "mentioned_in_source": "相关来源或概念为“{object}”",
     "has_level": "项目级别为“{object}”",
     "related_to_concept": "相关概念为“{object}”",
+    "held_by": "馆藏机构为“{object}”",
+    "created_in_period": "年代为“{object}”",
+    "made_of": "质地为“{object}”",
 }
 
 
@@ -116,8 +119,7 @@ def build_open_chunks(
                     release_policy=source.release_policy,
                     source_url=source.url,
                     retrieved_at=source.retrieved_at,
-                    notes=document.get("attribution")
-                    or "Built from release-approved open text.",
+                    notes=document.get("attribution") or "Built from release-approved open text.",
                 )
             )
     return records
@@ -136,8 +138,7 @@ def build_synthetic_fact_chunks(
         if not source:
             continue
         statements = [
-            PREDICATE_SUMMARY_TEMPLATES[fact.predicate].format(object=fact.object)
-            for fact in group
+            PREDICATE_SUMMARY_TEMPLATES[fact.predicate].format(object=fact.object) for fact in group
         ]
         text = (
             f"以下是 QinghaiRAG 根据已核验结构化事实生成的中性摘要，并非来源原文："

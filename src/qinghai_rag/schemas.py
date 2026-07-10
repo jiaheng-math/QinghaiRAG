@@ -138,6 +138,9 @@ class EntityRecord(StrictRecord):
         "ETHNIC_GROUP",
         "SCENIC_SPOT",
         "FESTIVAL_EVENT",
+        "MUSEUM_OBJECT",
+        "MATERIAL",
+        "HISTORICAL_PERIOD",
         "CONCEPT",
     ]
     aliases: list[str] = Field(default_factory=list)
@@ -164,6 +167,9 @@ class FactRecord(StrictRecord):
         "mentioned_in_source",
         "has_level",
         "related_to_concept",
+        "held_by",
+        "created_in_period",
+        "made_of",
     ]
     object: str
     object_type: str

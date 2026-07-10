@@ -81,3 +81,35 @@ def test_synthetic_fact_chunk_uses_readable_chinese_relations():
     assert "申报地区或单位为“青海省同仁县”" in chunk.text
     assert "belongs_to_category" not in chunk.text
     assert "declared_by" not in chunk.text
+
+
+def test_museum_fact_chunk_uses_readable_material_relation():
+    source = SourceRecord(
+        source_id="src_museum",
+        title="馆藏文物",
+        publisher="青海藏文化博物院",
+        source_type="museum_or_scenic_spot_official",
+        url="https://museum.example/object/1",
+        domain="museum.example",
+        retrieved_at="2026-07-10",
+        release_policy="metadata_and_facts_only",
+        crawl_status="parsed",
+    )
+    fact = FactRecord(
+        fact_id="fact_material",
+        subject="金饰件",
+        subject_type="MUSEUM_OBJECT",
+        predicate="made_of",
+        object="金",
+        object_type="MATERIAL",
+        evidence_source_id=source.source_id,
+        evidence_url=source.url,
+        extraction_method="rule",
+        verified=True,
+        confidence="high",
+    )
+
+    [chunk] = build_synthetic_fact_chunks([fact], {source.source_id: source})
+
+    assert "质地为“金”" in chunk.text
+    assert "made_of" not in chunk.text
