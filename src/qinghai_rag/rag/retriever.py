@@ -148,6 +148,10 @@ class EvidenceAllocator:
         budget: int,
     ) -> list[dict[str, Any]]:
         merged: dict[str, dict[str, Any]] = {}
+        graph_evidence_ids = {
+            item.get("evidence_id") or f"{item['source_id']}:{item['text']}"
+            for item in graph_results
+        }
         for item in [*vector_results, *graph_results]:
             key = item.get("evidence_id") or f"{item['source_id']}:{item['text']}"
             candidate = dict(item)
@@ -165,6 +169,29 @@ class EvidenceAllocator:
             chosen = ranked.pop(0)
             selected.append(chosen)
             per_source[chosen["source_id"]] += 1
+        # A hybrid result should retain at least one traceable graph fact when
+        # entity matching produced graph candidates. Long open-text passages
+        # can otherwise occupy the entire evidence budget after cross-encoder
+        # reranking, which breaks structured regional and aggregation queries.
+        # Preserve the existing order and replace only the final result.
+        if budget > 1 and graph_evidence_ids:
+            selected_ids = {
+                item.get("evidence_id") or f"{item['source_id']}:{item['text']}"
+                for item in selected
+            }
+            if not selected_ids & graph_evidence_ids:
+                best_graph = max(
+                    (
+                        item
+                        for key, item in merged.items()
+                        if key in graph_evidence_ids
+                    ),
+                    key=lambda item: item["allocation_score"],
+                )
+                if len(selected) < budget:
+                    selected.append(best_graph)
+                elif selected:
+                    selected[-1] = best_graph
         return selected
 
 
@@ -270,7 +297,16 @@ class HybridRetriever:
             )
             if rerank:
                 candidates = self.reranker.rerank(query, [*chunk_results, *graph_results])
-                return self.allocator.allocate(query, candidates, [], budget)
+                graph_evidence_ids = {item["evidence_id"] for item in graph_results}
+                reranked_graph = [
+                    item for item in candidates if item["evidence_id"] in graph_evidence_ids
+                ]
+                reranked_chunks = [
+                    item for item in candidates if item["evidence_id"] not in graph_evidence_ids
+                ]
+                return self.allocator.allocate(
+                    query, reranked_chunks, reranked_graph, budget
+                )
             return self.allocator.allocate(query, chunk_results, graph_results, budget)
         if rerank:
             results = self.reranker.rerank(query, results, top_k=budget)

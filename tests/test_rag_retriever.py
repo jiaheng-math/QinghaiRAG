@@ -134,3 +134,35 @@ def test_hybrid_rerank_keeps_traceable_evidence():
     assert len(results) == 2
     assert {item["source_id"] for item in results} == {"s1", "s2"}
     assert all(item["source_url"] for item in results)
+
+
+def test_hybrid_rerank_reserves_graph_evidence_when_open_text_fills_budget():
+    vector = FakeRetriever(
+        [
+            _chunk_result("c1", 0.9, "第一篇很长的正文证据" * 8, source_id="s1"),
+            _chunk_result("c2", 0.8, "第二篇同样很长的正文证据" * 8, source_id="s2"),
+            _chunk_result("c3", 0.7, "第三篇正文证据" * 8, source_id="s3"),
+        ]
+    )
+    graph = FakeRetriever(
+        [
+            {
+                "evidence_id": "f1",
+                "source_id": "s4",
+                "score": 0.7,
+                "text": "海南州 — declared_by — 项目甲",
+                "source_url": "https://b",
+                "confidence": "high",
+                "kind": "graph",
+            }
+        ]
+    )
+    retriever = HybridRetriever(vector, graph, reranker=FakeReranker())
+
+    results = retriever.retrieve(
+        "海南州申报了哪些项目", mode="hybrid+rerank", top_k=3, budget=2
+    )
+
+    assert len(results) == 2
+    assert results[-1]["evidence_id"] == "f1"
+    assert any(item["kind"] == "graph" for item in results)
