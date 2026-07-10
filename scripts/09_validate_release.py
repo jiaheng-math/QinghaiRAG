@@ -6,6 +6,7 @@ from collections import Counter
 from pathlib import Path
 
 from qinghai_rag.config import PATHS, load_project_config
+from qinghai_rag.evidence_minimization import contains_adjacent_personal_field
 from qinghai_rag.io_utils import read_jsonl
 from qinghai_rag.schemas import (
     RELEASE_MODELS,
@@ -54,6 +55,8 @@ def validate() -> tuple[list[str], list[str]]:
     for fact in facts:
         if not fact.evidence_source_id or fact.evidence_source_id not in source_by_id:
             errors.append(f"Fact {fact.fact_id} has missing/unknown evidence source")
+        if contains_adjacent_personal_field(fact.evidence_text):
+            errors.append(f"Fact {fact.fact_id} evidence contains an unrelated personal field")
     restricted = load_project_config("release_policy.yaml").get("restricted_domains", [])
     seen_chunk_text = set()
     for chunk in chunks:

@@ -14,7 +14,7 @@ The audited `1.0.0-rc1` snapshot contains 868 registered sources, 653 canonical 
 
 Four retrieval families are evaluated at `top_k=5` — dense vector retrieval, BM25, graph retrieval, and hybrid retrieval — each with and without a BGE cross-encoder reranker. On the current in-dataset evidence benchmark, hybrid retrieval with reranking reaches Recall@5 of 1.0000, while graph-only retrieval yields the best MRR at 0.9889. After an explicit requested-attribute support check was added, all eight modes reach an unanswerable refusal rate and citation-presence rate of 1.0000. These numbers measure evidence retrieval over QA generated from the same verified fact universe; they say nothing about open-domain factual generalization or generative answer quality.
 
-The snapshot is labeled a candidate for two reasons. It meets the configured V1 ranges for sources, QA, manually checked facts, and manually checked QA, but remains below the targets of 2,000 entities, 10,000 facts, and 10,000 chunks. Separately, a public-release audit still has to finish stripping adjacent personal fields that may linger in some structured evidence excerpts. This report documents both gaps.
+The snapshot remains a candidate because it meets the configured V1 ranges for sources, QA, manually checked facts, and manually checked QA, but remains below the targets of 2,000 entities, 10,000 facts, and 10,000 chunks. Coverage and leakage-safe split work also remain open. A release audit found and removed unrelated personal columns from 126 legacy evidence excerpts before publication.
 
 ## 1. Motivation and Scope
 
@@ -198,9 +198,9 @@ The release validator checks:
 
 The current result is `errors=0, warnings=0`, and the restricted-source audit reports zero open-text violations. This is an engineering validation result — not a legal opinion, and not a guarantee that every factual claim is culturally authoritative.
 
-### 4.6 Evidence minimization release blocker
+### 4.6 Evidence minimization audit
 
-The schema stores short evidence excerpts to support auditing. Some legacy national-project table excerpts may still carry adjacent public representative fields — sex or birth date, for example — that the released relation does not need. Current annotation policy already excludes such columns, so a field-level minimization audit and migration must run before the candidate can be labeled the final public release: keep the relation, the source URL, and the shortest sufficient evidence; drop the unrelated adjacent columns.
+The schema stores short evidence excerpts to support auditing. A field-level audit found 126 legacy national-project table excerpts carrying adjacent representative fields that the released relation did not need: 62 category facts and 64 applicant facts. The migration replaced each excerpt with only the project name and relation-specific value while preserving its fact ID, triple, source URL, verification status, and manual-review status. The post-migration audit reports zero remaining sex, birth-date, address, telephone, or identification fields. New table extraction now emits relation-specific evidence directly, and release validation rejects any recurrence.
 
 ## 5. Benchmark Construction
 
@@ -353,7 +353,7 @@ Project-authored summaries must stay labeled as synthetic. Users should follow t
 
 ### 9.2 Personal information
 
-Public representative names and project relations appear where the benchmark needs them. Detailed addresses, contact details, identification numbers, and unnecessary biography fields fall outside the intended schema. The evidence-minimization blocker in Section 4.6 must be resolved before final public labeling. Audit exports strip reviewer identity and local paths.
+Public representative names and project relations appear where the benchmark needs them. Detailed addresses, contact details, identification numbers, and unnecessary biography fields fall outside the intended schema. The Section 4.6 migration removed unrelated adjacent personal fields from legacy evidence, and the validator now treats their recurrence as a release error. Audit exports strip reviewer identity and local paths.
 
 ### 9.3 Copyright and attribution
 
@@ -382,25 +382,22 @@ The Space should load the published data version rather than private AutoDL file
 2. **Coverage:** ecological tourism, cultural-tourism policy, and Haibei sources remain below configured minima.
 3. **Institutional bias:** official sources dominate; community and oral perspectives are underrepresented.
 4. **Text-only representation:** images, audio, performance, geography, and embodied practice are absent.
-5. **Evidence minimization:** some legacy structured excerpts still need field-level redaction.
-6. **No leakage-safe partition:** the RC publishes only a `full` QA split.
-7. **No generative-answer evaluation:** baseline metrics cover retrieval and conservative refusal only.
-8. **No efficiency benchmark:** latency, memory, index-build time, and operating cost are not reported.
-9. **Temporal versioning:** source claims can change, but the fact schema has limited validity-period support.
-10. **Template effects:** QA wording and the refusal guard share a controlled attribute vocabulary.
+5. **No leakage-safe partition:** the RC publishes only a `full` QA split.
+6. **No generative-answer evaluation:** baseline metrics cover retrieval and conservative refusal only.
+7. **No efficiency benchmark:** latency, memory, index-build time, and operating cost are not reported.
+8. **Temporal versioning:** source claims can change, but the fact schema has limited validity-period support.
+9. **Template effects:** QA wording and the refusal guard share a controlled attribute vocabulary.
 
 ### 10.2 Planned work
 
 Before final V1:
 
-- complete the evidence excerpt minimization audit;
 - add at least two parsed Haibei sources, eight ecological-tourism sources, and forty policy sources;
 - expand structured official facts and release-safe chunks without weakening policy gates;
 - reach at least 2,000 entities, 10,000 facts, and 10,000 chunks;
 - construct entity/source-aware QA partitions and audit leakage;
 - add retrieval latency and memory measurements;
 - publish the six-config HF dataset with a version tag and DOI;
-- render this report as a versioned PDF;
 - deploy an evidence-only Hugging Face Space pinned to the released dataset revision.
 
 Later versions should also add source update dates and validity periods, correction lineage, community review where feasible, and richer spatial/multimodal metadata without redistributing protected media.
