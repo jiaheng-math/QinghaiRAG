@@ -1,0 +1,24 @@
+review_id: review_guide_3rd_ich_candidates_2025
+catalog_kind: project
+reviewed_at: "2026-07-10"
+reviewer_role: maintainer
+review_method: Complete row-by-row review of the structured HTML table on the official public-notice page; the proposed status was checked against the notice text.
+source_id: src_guide_3rd_ich_candidates_2025
+title: 关于贵德县第三批县级非物质文化遗产代表性项目入选名单的公示
+publisher: 贵德县文体旅游广电局
+parent_page_url: https://www.guide.gov.cn/zwgk/fdzdgknr/qt/content_400015848
+attachment_url: https://www.guide.gov.cn/zwgk/fdzdgknr/qt/content_400015848
+attachment_sha256: 4fbd34af86a48f8ff6635e99137a3419e5e31197225e182ac70bc3d062844c6e
+raw_path: data/raw/local_official/guide_3rd_ich_2025.html
+region: [青海省, 海南藏族自治州, 贵德县]
+topic: [非遗, 文旅政策, 地方非遗名录]
+level: 贵德县级
+publication_status: proposed
+proposed_concept: 贵德县第三批县级非物质文化遗产代表性项目拟入选名单
+batch: 第三批
+expected_rows: 4
+rows:
+  - {sequence: 1, project_number: "VIII-07", project_name: 羊皮筏子, category: 传统技艺, circulation_area: 贵德县}
+  - {sequence: 2, project_number: "VIII-08", project_name: 贵德古法银器制作技艺, category: 传统技艺, circulation_area: 贵德县}
+  - {sequence: 3, project_number: "VIII-09", project_name: 贵德传统庄廓院营造技艺, category: 传统技艺, circulation_area: 贵德县}
+  - {sequence: 4, project_number: "VIII-10", project_name: 官磨药香, category: 传统技艺, circulation_area: 贵德县}

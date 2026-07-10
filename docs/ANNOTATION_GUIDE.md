@@ -37,6 +37,8 @@ Fuzzy matching is a review suggestion, never automatic authority. Similar person
 
 Reviewed scanned catalogs must also record the official landing page and attachment URLs, the attachment SHA-256, review date and role, expected row count, and the complete reviewed transcription. OCR is annotation assistance only: its output is never marked verified without row-by-row visual confirmation. Reviewed transcriptions live under `annotations/local_catalogs/`; raw PDFs remain ignored.
 
+Public-notice candidate lists must set `publication_status: proposed` and record an explicit `proposed_concept`. Their importer may retain the reviewed category and candidate-list relation, but it must not emit `has_level` or `located_in` as though the list had already been finally approved.
+
 Representative-inheritor imports retain only the minimum benchmark fields needed for a public relation (normally project name and public representative name). Sex, birth date, detailed address, telephone number, identification number, and other unnecessary personal columns are excluded from reviewed annotations and release facts even when they appear in an official attachment.
 
 ## Conflicts

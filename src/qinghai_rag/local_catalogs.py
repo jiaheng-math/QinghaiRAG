@@ -63,6 +63,8 @@ class ReviewedCatalogBase(StrictRecord):
 class ReviewedLocalCatalog(ReviewedCatalogBase):
     catalog_kind: Literal["project"] = "project"
     level: str
+    publication_status: Literal["final", "proposed"] = "final"
+    proposed_concept: str | None = None
     rows: list[ReviewedCatalogRow]
 
     @model_validator(mode="after")
@@ -76,6 +78,8 @@ class ReviewedLocalCatalog(ReviewedCatalogBase):
             raise ValueError("reviewed project names must be unique")
         if len({row.project_number for row in self.rows}) != len(self.rows):
             raise ValueError("reviewed project numbers must be unique")
+        if self.publication_status == "proposed" and not self.proposed_concept:
+            raise ValueError("proposed catalogs require proposed_concept")
         return self
 
 
@@ -221,13 +225,26 @@ def build_reviewed_catalog_facts(review: ReviewedCatalog) -> list[FactRecord]:
         )
     facts = []
     for row in review.rows:
-        facts.extend(
-            [
-                _reviewed_fact(review, row, "belongs_to_category", row.category, "CATEGORY"),
-                _reviewed_fact(review, row, "located_in", row.circulation_area, "REGION"),
-                _reviewed_fact(review, row, "has_level", review.level, "CONCEPT"),
-            ]
+        facts.append(
+            _reviewed_fact(review, row, "belongs_to_category", row.category, "CATEGORY")
         )
+        if review.publication_status == "proposed":
+            facts.append(
+                _reviewed_fact(
+                    review,
+                    row,
+                    "related_to_concept",
+                    review.proposed_concept or "",
+                    "CONCEPT",
+                )
+            )
+        else:
+            facts.extend(
+                [
+                    _reviewed_fact(review, row, "located_in", row.circulation_area, "REGION"),
+                    _reviewed_fact(review, row, "has_level", review.level, "CONCEPT"),
+                ]
+            )
     return sorted(facts, key=lambda fact: fact.fact_id)
 
 

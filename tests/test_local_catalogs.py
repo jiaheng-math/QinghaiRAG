@@ -107,6 +107,24 @@ def test_reviewed_catalog_rejects_noncontiguous_rows(tmp_path):
         ReviewedLocalCatalog.model_validate(payload)
 
 
+def test_proposed_catalog_does_not_claim_final_level_or_location(tmp_path):
+    review, _ = _review(tmp_path)
+    payload = review.model_dump(mode="json")
+    payload["publication_status"] = "proposed"
+    payload["proposed_concept"] = "第三批县级非遗代表性项目拟入选名单"
+    proposed = ReviewedLocalCatalog.model_validate(payload)
+
+    facts = build_reviewed_catalog_facts(proposed)
+
+    assert len(facts) == 4
+    assert {fact.predicate for fact in facts} == {
+        "belongs_to_category",
+        "related_to_concept",
+    }
+    assert "has_level" not in {fact.predicate for fact in facts}
+    assert "located_in" not in {fact.predicate for fact in facts}
+
+
 def test_reviewed_inheritor_catalog_excludes_personal_columns():
     review = ReviewedLocalInheritorCatalog.model_validate(
         {
