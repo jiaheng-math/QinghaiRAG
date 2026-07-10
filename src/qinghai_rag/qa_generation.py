@@ -189,6 +189,8 @@ def generate_multi_hop(facts: list[FactRecord], target: int) -> list[QARecord]:
         lambda: defaultdict(list)
     )
     for fact in facts:
+        if fact.predicate not in SINGLE_TEMPLATES:
+            continue
         by_subject[(normalize_entity_name(fact.subject), fact.subject_type)][fact.predicate].append(
             fact
         )
@@ -223,6 +225,8 @@ def generate_comparison(facts: list[FactRecord], target: int) -> list[QARecord]:
         lambda: defaultdict(list)
     )
     for fact in facts:
+        if fact.predicate not in SINGLE_TEMPLATES:
+            continue
         by_subject[(normalize_entity_name(fact.subject), fact.subject_type)][fact.predicate].append(
             fact
         )

@@ -306,3 +306,34 @@ def test_comparison_target_spreads_subjects_and_relation_types():
     assert max(subject_counts.values()) < 10
     assert len(used_labels) >= 2
     assert all("馆藏机构" not in item.question for item in questions)
+
+
+@pytest.mark.parametrize("predicate", ["related_to_concept", "mentioned_in_source"])
+def test_metadata_relations_do_not_enter_multi_hop_or_comparison_qa(predicate):
+    facts = [
+        _category_fact("category_one", "项目甲", "传统技艺"),
+        _category_fact("category_two", "项目乙", "传统美术"),
+    ]
+    for index, subject in enumerate(["项目甲", "项目乙"], start=1):
+        facts.append(
+            FactRecord(
+                fact_id=f"metadata_{index}",
+                subject=subject,
+                subject_type="ICH_PROJECT",
+                predicate=predicate,
+                object="第三批县级非遗代表性项目拟入选名单",
+                object_type="CONCEPT",
+                evidence_source_id=f"src_metadata_{index}",
+                evidence_url=f"https://gov.example/metadata_{index}",
+                extraction_method="manual_review",
+                verified=True,
+                confidence="high",
+            )
+        )
+
+    multi_hop = generate_multi_hop(facts, target=10)
+    comparisons = generate_comparison(facts, target=10)
+
+    assert multi_hop == []
+    assert all("相关概念" not in item.question for item in comparisons)
+    assert all("相关来源" not in item.question for item in comparisons)
