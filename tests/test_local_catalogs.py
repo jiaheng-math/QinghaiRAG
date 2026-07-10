@@ -4,11 +4,13 @@ import pytest
 
 from qinghai_rag.local_catalogs import (
     ReviewedLocalCatalog,
+    ReviewedLocalInheritorCatalog,
     build_reviewed_catalog_facts,
     build_reviewed_catalog_source,
     merge_reviewed_catalog_facts,
     verify_reviewed_attachment,
 )
+from qinghai_rag.normalize import normalize_entity_name
 
 
 def _review(tmp_path: Path) -> tuple[ReviewedLocalCatalog, Path]:
@@ -103,3 +105,42 @@ def test_reviewed_catalog_rejects_noncontiguous_rows(tmp_path):
 
     with pytest.raises(ValueError, match="contiguous"):
         ReviewedLocalCatalog.model_validate(payload)
+
+
+def test_reviewed_inheritor_catalog_excludes_personal_columns():
+    review = ReviewedLocalInheritorCatalog.model_validate(
+        {
+            "review_id": "review_inheritors",
+            "reviewed_at": "2026-07-10",
+            "reviewer_role": "maintainer",
+            "review_method": "Project-person pair review",
+            "source_id": "src_local_inheritors",
+            "title": "地方代表性传承人名录",
+            "publisher": "地方文旅局",
+            "parent_page_url": "https://example.gov.cn/notice/2",
+            "attachment_url": "https://example.gov.cn/files/2.docx",
+            "attachment_sha256": "a" * 64,
+            "raw_path": "data/raw/local_official/inheritors.docx",
+            "region": ["青海省", "西宁市", "湟中区"],
+            "topic": ["非遗", "代表性传承人"],
+            "batch": "第四批",
+            "excluded_fields": ["性别", "民族", "出生年月", "地址"],
+            "expected_rows": 2,
+            "rows": [
+                {"sequence": 1, "project_name": "项目甲", "person_name": "甲某"},
+                {"sequence": 2, "project_name": "项目甲", "person_name": "乙某"},
+            ],
+        }
+    )
+
+    facts = build_reviewed_catalog_facts(review)
+
+    assert len(facts) == 2
+    assert all(fact.predicate == "inherited_by" for fact in facts)
+    assert all(fact.manual_checked for fact in facts)
+    assert all("出生" not in (fact.evidence_text or "") for fact in facts)
+    assert all("地址" not in (fact.evidence_text or "") for fact in facts)
+
+
+def test_local_category_alias_normalizes_to_benchmark_taxonomy():
+    assert normalize_entity_name("传统体育游艺与杂技") == "传统体育、游艺与杂技"

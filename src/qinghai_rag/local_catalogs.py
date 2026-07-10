@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from datetime import date
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Literal
 
 import yaml
 from pydantic import Field, field_validator, model_validator
@@ -23,7 +23,13 @@ class ReviewedCatalogRow(StrictRecord):
     circulation_area: str
 
 
-class ReviewedLocalCatalog(StrictRecord):
+class ReviewedInheritorRow(StrictRecord):
+    sequence: int = Field(ge=1)
+    project_name: str
+    person_name: str
+
+
+class ReviewedCatalogBase(StrictRecord):
     review_id: str
     reviewed_at: str
     reviewer_role: str
@@ -37,10 +43,8 @@ class ReviewedLocalCatalog(StrictRecord):
     raw_path: str
     region: list[str]
     topic: list[str]
-    level: str
     batch: str
     expected_rows: int = Field(ge=1)
-    rows: list[ReviewedCatalogRow]
 
     @field_validator("reviewed_at")
     @classmethod
@@ -54,6 +58,12 @@ class ReviewedLocalCatalog(StrictRecord):
         if not re.fullmatch(r"[0-9a-f]{64}", value):
             raise ValueError("attachment_sha256 must be a lowercase SHA-256 digest")
         return value
+
+
+class ReviewedLocalCatalog(ReviewedCatalogBase):
+    catalog_kind: Literal["project"] = "project"
+    level: str
+    rows: list[ReviewedCatalogRow]
 
     @model_validator(mode="after")
     def valid_rows(self) -> "ReviewedLocalCatalog":
@@ -69,12 +79,36 @@ class ReviewedLocalCatalog(StrictRecord):
         return self
 
 
-def load_reviewed_catalog(path: str | Path) -> ReviewedLocalCatalog:
+class ReviewedLocalInheritorCatalog(ReviewedCatalogBase):
+    catalog_kind: Literal["inheritor"] = "inheritor"
+    excluded_fields: list[str]
+    rows: list[ReviewedInheritorRow]
+
+    @model_validator(mode="after")
+    def valid_rows(self) -> "ReviewedLocalInheritorCatalog":
+        if len(self.rows) != self.expected_rows:
+            raise ValueError("expected_rows does not match reviewed rows")
+        sequences = [row.sequence for row in self.rows]
+        if sequences != list(range(1, self.expected_rows + 1)):
+            raise ValueError("reviewed row sequences must be contiguous and ordered")
+        pairs = {(row.project_name, row.person_name) for row in self.rows}
+        if len(pairs) != len(self.rows):
+            raise ValueError("reviewed project-person pairs must be unique")
+        return self
+
+
+ReviewedCatalog = ReviewedLocalCatalog | ReviewedLocalInheritorCatalog
+
+
+def load_reviewed_catalog(path: str | Path) -> ReviewedCatalog:
     with Path(path).open("r", encoding="utf-8") as handle:
-        return ReviewedLocalCatalog.model_validate(yaml.safe_load(handle))
+        payload = yaml.safe_load(handle)
+    if payload.get("catalog_kind", "project") == "inheritor":
+        return ReviewedLocalInheritorCatalog.model_validate(payload)
+    return ReviewedLocalCatalog.model_validate(payload)
 
 
-def verify_reviewed_attachment(review: ReviewedLocalCatalog, path: str | Path) -> str:
+def verify_reviewed_attachment(review: ReviewedCatalog, path: str | Path) -> str:
     attachment = Path(path)
     if not attachment.exists():
         raise FileNotFoundError(f"Reviewed attachment is missing: {attachment}")
@@ -86,7 +120,7 @@ def verify_reviewed_attachment(review: ReviewedLocalCatalog, path: str | Path) -
     return actual
 
 
-def build_reviewed_catalog_source(review: ReviewedLocalCatalog) -> SourceRecord:
+def build_reviewed_catalog_source(review: ReviewedCatalog) -> SourceRecord:
     return SourceRecord(
         source_id=review.source_id,
         title=review.title,
@@ -103,8 +137,9 @@ def build_reviewed_catalog_source(review: ReviewedLocalCatalog) -> SourceRecord:
         crawl_status="parsed",
         content_sha256=review.attachment_sha256,
         notes=(
-            f"Manually reviewed official catalog attachment; review_id={review.review_id}; "
-            f"parent_page={review.parent_page_url}; raw PDF is not released."
+            f"Manually reviewed official {review.catalog_kind} catalog attachment; "
+            f"review_id={review.review_id}; parent_page={review.parent_page_url}; "
+            "raw attachment is not released."
         ),
     )
 
@@ -146,7 +181,44 @@ def _reviewed_fact(
     )
 
 
-def build_reviewed_catalog_facts(review: ReviewedLocalCatalog) -> list[FactRecord]:
+def _reviewed_inheritor_fact(
+    review: ReviewedLocalInheritorCatalog,
+    row: ReviewedInheritorRow,
+) -> FactRecord:
+    subject = normalize_entity_name(row.project_name)
+    person = normalize_entity_name(row.person_name)
+    evidence = (
+        f"人工核验官方附件表格第{row.sequence}行：项目名称：{row.project_name}；"
+        f"代表性传承人：{row.person_name}；名录批次：{review.batch}"
+    )
+    return FactRecord(
+        fact_id=stable_fact_id(subject, "inherited_by", person, review.source_id),
+        subject=subject,
+        subject_type="ICH_PROJECT",
+        predicate="inherited_by",
+        object=person,
+        object_type="PERSON",
+        evidence_source_id=review.source_id,
+        evidence_url=review.attachment_url,
+        evidence_text=evidence,
+        extraction_method="manual_review",
+        verified=True,
+        confidence="high",
+        manual_checked=True,
+        notes=(
+            f"review_id={review.review_id}; reviewed_at={review.reviewed_at}; "
+            f"attachment_sha256={review.attachment_sha256}; excluded_fields="
+            + ",".join(review.excluded_fields)
+        ),
+    )
+
+
+def build_reviewed_catalog_facts(review: ReviewedCatalog) -> list[FactRecord]:
+    if isinstance(review, ReviewedLocalInheritorCatalog):
+        return sorted(
+            (_reviewed_inheritor_fact(review, row) for row in review.rows),
+            key=lambda fact: fact.fact_id,
+        )
     facts = []
     for row in review.rows:
         facts.extend(

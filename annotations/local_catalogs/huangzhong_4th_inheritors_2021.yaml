@@ -1,0 +1,37 @@
+review_id: review_huangzhong_4th_inheritors_2021
+catalog_kind: inheritor
+reviewed_at: "2026-07-10"
+reviewer_role: maintainer
+review_method: Complete row-by-row review of project-person pairs in the official DOCX attachment; nonessential personal columns were deliberately excluded.
+source_id: src_huangzhong_4th_inheritors_2021
+title: 湟中区第四批区级非物质文化遗产项目代表性传承人名录
+publisher: 西宁市湟中区文体旅游局
+parent_page_url: https://www.huangzhong.gov.cn/html/zwgg/3997.html
+attachment_url: https://www.huangzhong.gov.cn/upload/remote/a6bdb60583966d9c4352344fba388138.docx
+attachment_sha256: 4e2929abb9bccf404438e039d848e65cd4184e6ab72b69bce4019a98feb88634
+raw_path: data/raw/local_official/huangzhong_4th_inheritors.docx
+region: [青海省, 西宁市, 湟中区]
+topic: [非遗, 民族文化, 代表性传承人, 文旅政策]
+batch: 第四批区级代表性传承人
+excluded_fields: [性别, 民族, 出生年月, 地址]
+expected_rows: 19
+rows:
+  - {sequence: 1, project_name: 河湟锅庄, person_name: 李晓峰}
+  - {sequence: 2, project_name: 河湟锅庄, person_name: 杨秀艳}
+  - {sequence: 3, project_name: 韩氏正骨技艺, person_name: 韩达财}
+  - {sequence: 4, project_name: 韩氏正骨技艺, person_name: 韩慧芸}
+  - {sequence: 5, project_name: "葛家寨“出僧官”", person_name: 柳发珍}
+  - {sequence: 6, project_name: "葛家寨“出僧官”", person_name: 孙玉山}
+  - {sequence: 7, project_name: 宗喀唐卡, person_name: 柳启萍}
+  - {sequence: 8, project_name: 宗喀唐卡, person_name: 何国明}
+  - {sequence: 9, project_name: 湟中面塑, person_name: 祁生财}
+  - {sequence: 10, project_name: 湟中面塑, person_name: 杨成新}
+  - {sequence: 11, project_name: 青海银铜坛城营造技艺, person_name: 王伟章}
+  - {sequence: 12, project_name: 青海银铜坛城营造技艺, person_name: 王伟良}
+  - {sequence: 13, project_name: 青海荷包制作技艺, person_name: 陈玉玲}
+  - {sequence: 14, project_name: 青海荷包制作技艺, person_name: 师锦}
+  - {sequence: 15, project_name: 书画装裱和古籍修复, person_name: 李琳}
+  - {sequence: 16, project_name: 书画装裱和古籍修复, person_name: 李海}
+  - {sequence: 17, project_name: 书画装裱和古籍修复, person_name: 彭耀芳}
+  - {sequence: 18, project_name: 慕容古寨二月二祭酒典, person_name: 慕荣}
+  - {sequence: 19, project_name: 慕容古寨二月二祭酒典, person_name: 陈文彬}

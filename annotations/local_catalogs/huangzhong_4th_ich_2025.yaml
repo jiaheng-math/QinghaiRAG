@@ -1,4 +1,5 @@
 review_id: review_huangzhong_4th_ich_2025
+catalog_kind: project
 reviewed_at: "2026-07-10"
 reviewer_role: maintainer
 review_method: Visual row-by-row comparison against the rendered official PDF attachment after OCR-assisted transcription.

@@ -1,0 +1,27 @@
+review_id: review_huangzhong_3rd_ich_2021
+catalog_kind: project
+reviewed_at: "2026-07-10"
+reviewer_role: maintainer
+review_method: Complete row-by-row review of the structured text table in the official DOCX attachment.
+source_id: src_huangzhong_3rd_ich_2021
+title: 湟中区第三批非物质文化遗产项目代表作名录
+publisher: 西宁市湟中区文体旅游局
+parent_page_url: https://www.huangzhong.gov.cn/html/zwgg/3997.html
+attachment_url: https://www.huangzhong.gov.cn/upload/remote/f417953437d347e2a66006407bd2041a.docx
+attachment_sha256: 482fcf23d220dae925cf5cc145d05c0cc90a90bd6b8ded1cb3e537416b149af1
+raw_path: data/raw/local_official/huangzhong_3rd_projects.docx
+region: [青海省, 西宁市, 湟中区]
+topic: [非遗, 文旅政策, 地方非遗名录]
+level: 湟中区级
+batch: 第三批
+expected_rows: 9
+rows:
+  - {sequence: 1, project_number: "Ⅵ-8", project_name: 昆仑武术, category: 传统体育游艺与杂技, circulation_area: 湟中区}
+  - {sequence: 2, project_number: "Ⅵ-9", project_name: 严氏藏拳, category: 传统体育游艺与杂技, circulation_area: 拦隆口镇}
+  - {sequence: 3, project_number: "Ⅶ-15", project_name: 湟中面塑, category: 传统美术, circulation_area: 鲁沙尔镇}
+  - {sequence: 4, project_number: "Ⅶ-16", project_name: 宗喀藏文书法, category: 传统美术, circulation_area: 塔尔寺}
+  - {sequence: 5, project_number: "Ⅷ—30", project_name: 万元青稞酒制曲工艺, category: 传统技艺, circulation_area: 西堡镇}
+  - {sequence: 6, project_number: "Ⅷ—31", project_name: 青海荷包制作技艺, category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 7, project_number: "Ⅷ—32", project_name: 青海银铜坛城营造技艺, category: 传统技艺, circulation_area: 鲁沙尔镇}
+  - {sequence: 8, project_number: "Ⅷ—33", project_name: 书画装裱和古籍修复, category: 传统技艺, circulation_area: 鲁沙尔镇}
+  - {sequence: 9, project_number: "Ⅸ-10", project_name: 韩氏正骨技艺, category: 传统医药, circulation_area: 多巴镇}
