@@ -114,6 +114,15 @@ python scripts/18_import_reviewed_local_catalog.py
 python scripts/18_import_reviewed_local_catalog.py --apply
 ```
 
+County-level tourism portals can be expanded conservatively as metadata candidates before any page text is released. For the official Guide County tourism portal, first run a one-page discovery audit, then remove `--max-pages 1` only after checking the candidate metadata:
+
+```bash
+python scripts/19_discover_guide_tourism.py --no-env-proxy --max-pages 1
+python scripts/19_discover_guide_tourism.py --no-env-proxy
+```
+
+Registration is a separate explicit step via `--register`. All discovered Guide pages default to `metadata_and_facts_only`; page-level provenance and reuse checks are still required before collection or release.
+
 The importer is idempotent, refuses a changed attachment hash, marks reviewed facts with `extraction_method=manual_review`, and never releases the scanned PDF as open text.
 
 ## Release policy

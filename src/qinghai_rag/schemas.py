@@ -69,7 +69,11 @@ class SourceCandidateRecord(StrictRecord):
     release_policy: ReleasePolicy = ReleasePolicy.METADATA_AND_FACTS_ONLY
     raw_text_release: bool = False
     discovery_method: Literal[
-        "ihchina_catalog", "ihchina_inheritor_catalog", "whlyt_search", "manual"
+        "ihchina_catalog",
+        "ihchina_inheritor_catalog",
+        "whlyt_search",
+        "guide_tourism",
+        "manual",
     ]
     discovered_at: str
     review_status: ReviewStatus = ReviewStatus.PENDING
