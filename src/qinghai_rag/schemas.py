@@ -47,6 +47,39 @@ class CrawlStatus(StrEnum):
     SKIPPED = "skipped"
 
 
+class ReviewStatus(StrEnum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
+class SourceCandidateRecord(StrictRecord):
+    candidate_id: str
+    source_id: str
+    title: str
+    publisher: str
+    source_type: SourceType = SourceType.OTHER
+    url: str
+    domain: str
+    province: str = "青海省"
+    region: list[str] = Field(default_factory=list)
+    topic: list[str] = Field(default_factory=list)
+    license_status: LicenseStatus = LicenseStatus.UNCLEAR
+    release_policy: ReleasePolicy = ReleasePolicy.METADATA_AND_FACTS_ONLY
+    raw_text_release: bool = False
+    discovery_method: Literal["ihchina_catalog", "manual"]
+    discovered_at: str
+    review_status: ReviewStatus = ReviewStatus.PENDING
+    catalog_metadata: dict[str, str] = Field(default_factory=dict)
+    notes: str = ""
+
+    @field_validator("discovered_at")
+    @classmethod
+    def valid_discovery_date(cls, value: str) -> str:
+        date.fromisoformat(value)
+        return value
+
+
 class SourceRecord(StrictRecord):
     source_id: str
     title: str

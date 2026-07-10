@@ -14,7 +14,7 @@ Scale is a quality gate, not a licence to collect low-quality text. The ordering
 |---|---:|---:|---:|---:|---:|---:|---:|
 | Toy seed | 5–20 | 20–100 | 50–200 | 20–100 | 20–50 | smoke review only | smoke review only |
 | v0.1 showcase | 100–300 | 500–1,500 | 2,000–8,000 | 2,000–8,000 | 300–800 | 100–200 | 300–500 |
-| v1.0 benchmark | 500–1,500 | 2,000–8,000 | 10,000–50,000 | 10,000–50,000 | 1,000–3,000 | 300–800 | release-specific |
+| v1.0 benchmark | 500–1,500 | 2,000–8,000 | 10,000–50,000 | 10,000–50,000 | 1,000–3,000 | 300–800 | 300–800 |
 
 The toy seed is only a smoke test. **v0.1 is the first version appropriate for a CV, GitHub, or Hugging Face showcase; v1.0 is the benchmark-grade target.** The ranges are machine-readable in `configs/scale_targets.yaml`, and the statistics report marks each tier as below/in range/above.
 
@@ -60,6 +60,7 @@ The demo defaults to evidence-only answers and never needs an API key. An option
 
 ```bash
 make install
+make discover
 make init
 make collect
 make facts
@@ -74,6 +75,8 @@ make stats
 ```
 
 `make all` runs those data stages in dependency order. Do not run it against third-party sites until seed URLs, reuse terms, robots rules, and contact details have been reviewed.
+
+`make discover` queries the official national ICH catalog for Qinghai project pages and writes a conservative review queue to `data/interim/source_candidates_ihchina.jsonl`. It does not register or crawl candidates. Review the queue first; after approval, run `python scripts/12_discover_ihchina_catalog.py --register`, then collect selected registered source IDs with a real maintainer contact.
 
 `make qa` targets at least 300 generated records, matching the v0.1 QA floor. If the verified fact graph does not support enough distinct grounded questions, the generator warns and emits fewer records rather than padding the benchmark with duplicates or unsupported questions.
 

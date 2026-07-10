@@ -8,6 +8,19 @@ from qinghai_rag.schemas import ChunkRecord, EntityRecord, FactRecord, SourceRec
 
 BOUNDARY_RE = re.compile(r"[。！？；\n]+")
 
+PREDICATE_SUMMARY_TEMPLATES = {
+    "belongs_to_category": "所属类别为“{object}”",
+    "located_in": "所在地为“{object}”",
+    "declared_by": "申报地区或单位为“{object}”",
+    "protected_by": "保护单位为“{object}”",
+    "inherited_by": "代表性传承人为“{object}”",
+    "associated_with_ethnic_group": "相关民族为“{object}”",
+    "related_to_festival": "相关节庆或活动为“{object}”",
+    "mentioned_in_source": "相关来源或概念为“{object}”",
+    "has_level": "项目级别为“{object}”",
+    "related_to_concept": "相关概念为“{object}”",
+}
+
 
 def stable_chunk_id(doc_id: str, start: int, end: int, text: str) -> str:
     digest = hashlib.sha256(f"{doc_id}\0{start}\0{end}\0{text}".encode()).hexdigest()[:12]
@@ -115,10 +128,13 @@ def build_synthetic_fact_chunks(
         source = sources.get(source_id)
         if not source:
             continue
-        statements = [f"{fact.predicate} 对应的信息为“{fact.object}”" for fact in group]
+        statements = [
+            PREDICATE_SUMMARY_TEMPLATES[fact.predicate].format(object=fact.object)
+            for fact in group
+        ]
         text = (
             f"以下是 QinghaiRAG 根据已核验结构化事实生成的中性摘要，并非来源原文："
-            f"{subject}的" + "；".join(statements) + f"。依据来源编号 {source_id}。"
+            f"关于{subject}，" + "；".join(statements) + f"。依据来源编号 {source_id}。"
         )
         doc_id = f"doc_synthetic_{hashlib.sha256((subject + source_id).encode()).hexdigest()[:12]}"
         chunks.append(

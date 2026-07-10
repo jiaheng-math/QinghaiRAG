@@ -55,7 +55,12 @@ def main() -> None:
     write_jsonl_atomic(interim_path, extracted, sort_key="fact_id")
     releasable = [fact for fact in extracted if fact.confidence in {"high", "medium"}]
     existing = [] if args.replace else read_jsonl(release_path, FactRecord)
-    merged = {fact.fact_id: fact for fact in [*existing, *releasable]}
+    merged = {fact.fact_id: fact for fact in existing}
+    for fact in releasable:
+        reviewed = merged.get(fact.fact_id)
+        if reviewed and (reviewed.verified or reviewed.manual_checked):
+            continue
+        merged[fact.fact_id] = fact
     write_jsonl_atomic(release_path, merged.values(), sort_key="fact_id")
     state.commit()
     print(

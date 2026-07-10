@@ -56,6 +56,12 @@ class FriendlyCrawler:
         self._robots: dict[str, RobotFileParser | None] = {}
         self._last_request_at = 0.0
 
+    @staticmethod
+    def _update_source(source: SourceRecord, **updates: object) -> SourceRecord:
+        payload = source.model_dump(mode="json")
+        payload.update(updates)
+        return SourceRecord.model_validate(payload)
+
     def _robots_allowed(self, url: str) -> bool:
         parsed = urlparse(url)
         origin = f"{parsed.scheme}://{parsed.netloc}"
@@ -93,11 +99,10 @@ class FriendlyCrawler:
             if not self._robots_allowed(source.url):
                 LOGGER.warning("robots.txt disallows %s", source.url)
                 return CrawlResult(
-                    source.model_copy(
-                        update={
-                            "crawl_status": "skipped",
-                            "notes": source.notes + "; robots disallowed",
-                        }
+                    self._update_source(
+                        source,
+                        crawl_status="skipped",
+                        notes=source.notes + "; robots disallowed",
                     ),
                     None,
                 )
@@ -116,11 +121,10 @@ class FriendlyCrawler:
             except (requests.RequestException, OSError) as exc:
                 LOGGER.warning("Fetch failed for %s: %s", source.url, exc)
                 return CrawlResult(
-                    source.model_copy(
-                        update={
-                            "crawl_status": "failed",
-                            "notes": source.notes + f"; fetch failed: {exc}",
-                        }
+                    self._update_source(
+                        source,
+                        crawl_status="failed",
+                        notes=source.notes + f"; fetch failed: {exc}",
                     ),
                     None,
                 )
@@ -135,17 +139,16 @@ class FriendlyCrawler:
             configured_license=source.license_status.value,
             configured_policy=source.release_policy.value,
         )
-        updated = source.model_copy(
-            update={
-                "title": title or source.title,
-                "retrieved_at": date.today().isoformat(),
-                "content_sha256": sha256_bytes(html_bytes),
-                "crawl_status": "parsed",
-                "license_status": decision.license_status,
-                "release_policy": decision.release_policy,
-                "raw_text_release": decision.raw_text_release,
-                "notes": source.notes + f"; policy after fetch: {decision.reason}",
-            }
+        updated = self._update_source(
+            source,
+            title=title or source.title,
+            retrieved_at=date.today().isoformat(),
+            content_sha256=sha256_bytes(html_bytes),
+            crawl_status="parsed",
+            license_status=decision.license_status,
+            release_policy=decision.release_policy,
+            raw_text_release=decision.raw_text_release,
+            notes=source.notes + f"; policy after fetch: {decision.reason}",
         )
         document = {
             "doc_id": make_doc_id(source.source_id, text),

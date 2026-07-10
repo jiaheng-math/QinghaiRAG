@@ -10,6 +10,19 @@ from qinghai_rag.schemas import FactRecord, QARecord
 LOGGER = logging.getLogger(__name__)
 REFUSAL = "当前数据集中没有足够依据回答。"
 
+RELATION_LABELS = {
+    "belongs_to_category": "类别",
+    "located_in": "相关地区",
+    "protected_by": "保护单位",
+    "inherited_by": "代表性传承人",
+    "has_level": "项目级别",
+    "declared_by": "申报地区或单位",
+    "associated_with_ethnic_group": "相关民族",
+    "related_to_festival": "相关节庆或活动",
+    "mentioned_in_source": "相关来源或概念",
+    "related_to_concept": "相关概念",
+}
+
 
 def stable_question_id(question: str) -> str:
     return "q_" + hashlib.sha256(question.encode()).hexdigest()[:12]
@@ -111,21 +124,12 @@ def generate_multi_hop(facts: list[FactRecord], target: int) -> list[QARecord]:
     for fact in facts:
         by_subject[fact.subject].append(fact)
     output: dict[str, QARecord] = {}
-    relation_labels = {
-        "belongs_to_category": "类别",
-        "located_in": "相关地区",
-        "protected_by": "保护单位",
-        "inherited_by": "代表性传承人",
-        "has_level": "项目级别",
-        "declared_by": "申报方",
-        "associated_with_ethnic_group": "相关民族",
-    }
     for subject, group in by_subject.items():
         for left, right in itertools.combinations(group, 2):
             if left.predicate == right.predicate:
                 continue
-            left_label = relation_labels.get(left.predicate, left.predicate)
-            right_label = relation_labels.get(right.predicate, right.predicate)
+            left_label = RELATION_LABELS[left.predicate]
+            right_label = RELATION_LABELS[right.predicate]
             question = f"{subject}的{left_label}和{right_label}分别是什么？"
             answer = f"{left_label}：{left.object}；{right_label}：{right.object}。"
             item = _qa(
@@ -153,7 +157,8 @@ def generate_comparison(facts: list[FactRecord], target: int) -> list[QARecord]:
             continue
         predicate = common[0]
         left, right = by_subject[left_name][predicate], by_subject[right_name][predicate]
-        question = f"{left_name}和{right_name}在当前数据中的{predicate}信息分别是什么？"
+        relation_label = RELATION_LABELS[predicate]
+        question = f"{left_name}和{right_name}在当前数据中的{relation_label}分别是什么？"
         answer = f"{left_name}：{left.object}；{right_name}：{right.object}。"
         item = _qa(
             question,

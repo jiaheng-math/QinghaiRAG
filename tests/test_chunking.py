@@ -1,5 +1,5 @@
-from qinghai_rag.chunking import build_open_chunks, split_text
-from qinghai_rag.schemas import SourceRecord
+from qinghai_rag.chunking import build_open_chunks, build_synthetic_fact_chunks, split_text
+from qinghai_rag.schemas import FactRecord, SourceRecord
 
 
 def test_chinese_chunking_preserves_offsets_and_overlap():
@@ -26,3 +26,49 @@ def test_restricted_source_never_builds_open_text_chunk():
     )
     document = {"doc_id": "doc_1", "source_id": source.source_id, "text": "不应发布。"}
     assert build_open_chunks([document], {source.source_id: source}, []) == []
+
+
+def test_synthetic_fact_chunk_uses_readable_chinese_relations():
+    source = SourceRecord(
+        source_id="src_official",
+        title="官方名录",
+        url="https://gov.example/a",
+        domain="gov.example",
+        retrieved_at="2026-07-10",
+        release_policy="metadata_and_facts_only",
+        raw_text_release=False,
+        crawl_status="parsed",
+    )
+    facts = [
+        FactRecord(
+            fact_id="fact_1",
+            subject="热贡艺术",
+            subject_type="ICH_PROJECT",
+            predicate="belongs_to_category",
+            object="传统美术",
+            object_type="CATEGORY",
+            evidence_source_id=source.source_id,
+            evidence_url=source.url,
+            extraction_method="table_parse",
+            verified=True,
+            confidence="high",
+        ),
+        FactRecord(
+            fact_id="fact_2",
+            subject="热贡艺术",
+            subject_type="ICH_PROJECT",
+            predicate="declared_by",
+            object="青海省同仁县",
+            object_type="REGION",
+            evidence_source_id=source.source_id,
+            evidence_url=source.url,
+            extraction_method="table_parse",
+            verified=True,
+            confidence="medium",
+        ),
+    ]
+    [chunk] = build_synthetic_fact_chunks(facts, {source.source_id: source})
+    assert "所属类别为“传统美术”" in chunk.text
+    assert "申报地区或单位为“青海省同仁县”" in chunk.text
+    assert "belongs_to_category" not in chunk.text
+    assert "declared_by" not in chunk.text

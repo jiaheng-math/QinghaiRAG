@@ -1,10 +1,13 @@
 PYTHON ?= python
 PIP ?= $(PYTHON) -m pip
 
-.PHONY: install init collect facts entities chunks qa index graph eval demo validate stats export-hf test lint all
+.PHONY: install discover init collect facts entities chunks qa index graph eval demo validate stats export-hf test lint all
 
 install:
 	$(PIP) install -e ".[dev]"
+
+discover:
+	$(PYTHON) scripts/12_discover_ihchina_catalog.py
 
 init:
 	$(PYTHON) scripts/00_init_registry.py

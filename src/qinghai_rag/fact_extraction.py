@@ -18,6 +18,7 @@ HEADER_MAP = {
     "所属地区": "region",
     "申报地区": "declared_by",
     "申报单位": "declared_by",
+    "申报地区或单位": "declared_by",
     "保护单位": "protected_by",
     "代表性传承人": "inherited_by",
     "传承人": "inherited_by",
@@ -85,9 +86,16 @@ def extract_table_facts(html: str, source: SourceRecord) -> list[FactRecord]:
             cells = [cell.get_text(" ", strip=True) for cell in row.find_all(["th", "td"])]
             if len(cells) != len(mapped):
                 continue
+            cells = [
+                re.sub(rf"^\s*{re.escape(header)}\s*", "", value).strip()
+                for header, value in zip(headers, cells)
+            ]
             values = {field: value for field, value in zip(mapped, cells) if field and value}
             project = values.get("project")
             if not project:
+                continue
+            declared_by = values.get("declared_by", "")
+            if declared_by and source.province and source.province not in declared_by:
                 continue
             evidence = "；".join(f"{header}：{value}" for header, value in zip(headers, cells))
             for field, (predicate, object_type) in RELATIONS.items():

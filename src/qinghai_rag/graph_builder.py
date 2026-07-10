@@ -92,7 +92,7 @@ def build_graph(
 
 
 def save_graph(graph: nx.MultiDiGraph, path: str | Path) -> None:
-    payload: dict[str, Any] = nx.node_link_data(graph)
+    payload: dict[str, Any] = nx.node_link_data(graph, edges="links")
     write_json_atomic(path, payload)
 
 
@@ -100,4 +100,6 @@ def load_graph(path: str | Path) -> nx.MultiDiGraph:
     import json
 
     with Path(path).open("r", encoding="utf-8") as handle:
-        return nx.node_link_graph(json.load(handle), directed=True, multigraph=True)
+        return nx.node_link_graph(
+            json.load(handle), directed=True, multigraph=True, edges="links"
+        )
