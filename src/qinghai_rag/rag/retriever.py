@@ -31,6 +31,38 @@ def _predicate_query_bonus(query: str, predicate: str) -> float:
     return 0.2 if any(cue in query for cue in _PREDICATE_QUERY_CUES.get(predicate, ())) else 0.0
 
 
+def _requested_predicates(query: str) -> list[str]:
+    matches = []
+    for order, (predicate, cues) in enumerate(_PREDICATE_QUERY_CUES.items()):
+        positions = [query.find(cue) for cue in cues if cue in query]
+        if positions:
+            matches.append((min(positions), order, predicate))
+    return [predicate for _, _, predicate in sorted(matches)]
+
+
+def _select_graph_results(
+    query: str, ranked: list[dict[str, Any]], top_k: int
+) -> list[dict[str, Any]]:
+    """Reserve one graph fact for each relation explicitly requested by the query."""
+    selected: list[dict[str, Any]] = []
+    selected_ids: set[str] = set()
+    for predicate in _requested_predicates(query):
+        candidate = next(
+            (item for item in ranked if item.get("predicate") == predicate),
+            None,
+        )
+        if candidate and candidate["evidence_id"] not in selected_ids:
+            selected.append(candidate)
+            selected_ids.add(candidate["evidence_id"])
+    for item in ranked:
+        if len(selected) >= top_k:
+            break
+        if item["evidence_id"] not in selected_ids:
+            selected.append(item)
+            selected_ids.add(item["evidence_id"])
+    return selected[:top_k]
+
+
 class VectorRetriever:
     def __init__(
         self,
@@ -167,9 +199,11 @@ class GraphRetriever:
                 "source_url": fact.evidence_url,
                 "source_title": source.title if source else fact.evidence_source_id,
                 "kind": "graph",
+                "predicate": fact.predicate,
                 "confidence": fact.confidence,
             }
-        return sorted(results.values(), key=lambda item: item["score"], reverse=True)[:top_k]
+        ranked = sorted(results.values(), key=lambda item: item["score"], reverse=True)
+        return _select_graph_results(query, ranked, top_k)
 
 
 class EvidenceAllocator:

@@ -5,6 +5,7 @@ from qinghai_rag.rag.retriever import (
     GraphRetriever,
     HybridRetriever,
     _predicate_query_bonus,
+    _select_graph_results,
     fuse_dense_sparse,
 )
 
@@ -206,3 +207,31 @@ def test_graph_predicate_bonus_tracks_explicit_query_intent():
 
     assert _predicate_query_bonus(query, "declared_by") == 0.2
     assert _predicate_query_bonus(query, "inherited_by") == 0.0
+
+
+def test_graph_selection_reserves_each_relation_requested_by_multi_hop_query():
+    ranked = [
+        {
+            "evidence_id": "f1",
+            "predicate": "inherited_by",
+            "score": 1.0,
+        },
+        {
+            "evidence_id": "f2",
+            "predicate": "inherited_by",
+            "score": 0.99,
+        },
+        {
+            "evidence_id": "f3",
+            "predicate": "declared_by",
+            "score": 0.7,
+        },
+    ]
+
+    selected = _select_graph_results(
+        "热贡艺术的申报地区或单位和代表性传承人分别是什么？",
+        ranked,
+        top_k=2,
+    )
+
+    assert [item["evidence_id"] for item in selected] == ["f3", "f1"]
