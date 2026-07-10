@@ -210,6 +210,12 @@ def test_unanswerable_project_questions_request_missing_project_information():
     questions = generate_unanswerable([_subject_fact("测试项目", "ICH_PROJECT")], target=4)
 
     assert len(questions) == 4
-    assert all("门票" not in item.question for item in questions)
+    assert all(
+        "门票" not in item.question
+        and "展演" not in item.question
+        and "课程" not in item.question
+        for item in questions
+    )
     assert any("保护评估" in item.question for item in questions)
     assert any("专项保护资金" in item.question for item in questions)
+    assert any("保护规划文号" in item.question for item in questions)

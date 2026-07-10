@@ -268,8 +268,8 @@ def generate_unanswerable(facts: list[FactRecord], target: int) -> list[QARecord
         "ICH_PROJECT": [
             "{s}最近一次保护评估的具体得分是多少？",
             "{s}上一年度获得的专项保护资金是多少？",
-            "{s}最近一次官方展演的具体日期是什么？",
-            "{s}当前完整的传习课程安排是什么？",
+            "{s}最近一次保护评估的具体日期是什么？",
+            "{s}当前执行的保护规划文号是什么？",
         ],
         "MUSEUM_OBJECT": [
             "{s}的具体出土地点是什么？",
