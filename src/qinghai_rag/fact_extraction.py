@@ -36,6 +36,22 @@ RELATIONS = {
     "level": ("has_level", "CONCEPT"),
 }
 
+RELATION_EVIDENCE_LABELS = {
+    "belongs_to_category": "类别",
+    "located_in": "相关地区",
+    "declared_by": "申报地区或单位",
+    "protected_by": "保护单位",
+    "inherited_by": "代表性传承人",
+    "associated_with_ethnic_group": "相关民族",
+    "related_to_festival": "相关节庆",
+    "mentioned_in_source": "来源记录",
+    "has_level": "项目级别",
+    "related_to_concept": "相关概念",
+    "held_by": "馆藏机构",
+    "created_in_period": "年代",
+    "made_of": "质地",
+}
+
 
 def _normalized_project_key(value: str) -> str:
     return re.sub(r"\s+", "", unicodedata.normalize("NFKC", value))
@@ -58,6 +74,12 @@ def _matches_source_applicant(declared_by: str, source: SourceRecord) -> bool:
 def stable_fact_id(subject: str, predicate: str, obj: str, source_id: str) -> str:
     digest = hashlib.sha256(f"{subject}\0{predicate}\0{obj}\0{source_id}".encode()).hexdigest()[:12]
     return f"fact_{digest}"
+
+
+def relation_evidence(subject: str, predicate: str, obj: str) -> str:
+    """Return the shortest independently auditable excerpt for one relation."""
+    label = RELATION_EVIDENCE_LABELS[predicate]
+    return f"项目名称：{subject}；{label}：{obj}"
 
 
 def make_fact(
@@ -120,7 +142,6 @@ def extract_table_facts(html: str, source: SourceRecord) -> list[FactRecord]:
                 continue
             if declared_by and not _matches_source_applicant(declared_by, source):
                 continue
-            evidence = "；".join(f"{header}：{value}" for header, value in zip(headers, cells))
             for field, (predicate, object_type) in RELATIONS.items():
                 raw_value = values.get(field, "")
                 objects = (
@@ -132,7 +153,12 @@ def extract_table_facts(html: str, source: SourceRecord) -> list[FactRecord]:
                     if obj.strip():
                         facts.append(
                             make_fact(
-                                project, predicate, obj.strip(), object_type, source, evidence
+                                project,
+                                predicate,
+                                obj.strip(),
+                                object_type,
+                                source,
+                                relation_evidence(project, predicate, obj.strip()),
                             )
                         )
     return deduplicate_facts(facts)

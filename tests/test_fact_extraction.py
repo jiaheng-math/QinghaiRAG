@@ -68,6 +68,40 @@ def test_strips_repeated_column_labels_from_responsive_tables():
     }
 
 
+def test_table_evidence_keeps_only_subject_and_relation_fields():
+    source = SourceRecord(
+        source_id="src_ihchina_14056",
+        title="热贡艺术 - 中国非物质文化遗产网·中国非物质文化遗产数字博物馆",
+        publisher="中国非物质文化遗产网",
+        source_type="national_official_database",
+        url="https://www.ihchina.cn/project_details/14056.html",
+        domain="ihchina.cn",
+        province="青海省",
+        region=["青海省", "青海省同仁县"],
+        retrieved_at="2026-07-10",
+        release_policy="metadata_and_facts_only",
+        raw_text_release=False,
+        crawl_status="parsed",
+    )
+    html = """
+    <table>
+      <tr><th>编号</th><th>姓名</th><th>性别</th><th>出生日期</th><th>民族</th>
+          <th>类别</th><th>项目名称</th><th>申报地区或单位</th></tr>
+      <tr><td>01-0112</td><td>更登达吉</td><td>男</td><td>1964.08</td><td>藏族</td>
+          <td>传统美术</td><td>热贡艺术</td><td>青海省同仁县</td></tr>
+    </table>
+    """
+
+    facts = extract_table_facts(html, source)
+
+    assert {fact.evidence_text for fact in facts} == {
+        "项目名称：热贡艺术；类别：传统美术",
+        "项目名称：热贡艺术；申报地区或单位：青海省同仁县",
+    }
+    assert all("性别" not in fact.evidence_text for fact in facts)
+    assert all("出生日期" not in fact.evidence_text for fact in facts)
+
+
 def test_category_name_containing_dunhao_is_not_split():
     source = SourceRecord(
         source_id="src_test",
