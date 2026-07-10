@@ -1,4 +1,8 @@
-from qinghai_rag.whlyt_discovery import inspect_whlyt_article, parse_whlyt_search_page
+from qinghai_rag.whlyt_discovery import (
+    inspect_whlyt_article,
+    parse_whlyt_search_page,
+    whlyt_user_agent,
+)
 
 
 def test_whlyt_search_page_builds_restricted_metadata_candidates():
@@ -48,3 +52,10 @@ def test_whlyt_article_requires_site_ownership_attribution_and_no_page_restricti
     )
     assert restricted["eligible_full_text"] is False
     assert "page_specific_restriction" in restricted["reasons"]
+
+
+def test_whlyt_user_agent_transparently_identifies_project_and_contact():
+    value = whlyt_user_agent("maintainer@example.org")
+    assert value == (
+        "QinghaiRAG/0.1 (+maintainer@example.org; provenance-first research crawler)"
+    )

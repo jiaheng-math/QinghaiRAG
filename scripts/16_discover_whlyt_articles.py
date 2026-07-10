@@ -23,6 +23,7 @@ def main() -> None:
     parser.add_argument("--timeout", type=float, default=30.0)
     parser.add_argument("--interval", type=float, default=1.0)
     parser.add_argument("--max-pages", type=int, default=None)
+    parser.add_argument("--contact", default=None)
     parser.add_argument(
         "--output", default=str(PATHS.interim / "source_candidates_whlyt_articles.jsonl")
     )
@@ -37,6 +38,7 @@ def main() -> None:
         timeout=args.timeout,
         interval_seconds=args.interval,
         max_pages=args.max_pages,
+        contact=args.contact,
     )
     output = Path(args.output)
     existing = {

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import time
 from datetime import date
@@ -16,6 +17,11 @@ from qinghai_rag.source_registry import normalize_domain
 WHLYT_BASE_URL = "http://whlyt.qinghai.gov.cn"
 WHLYT_SEARCH_URL = f"{WHLYT_BASE_URL}/search"
 WHLYT_PUBLISHER = "青海省文化和旅游厅"
+
+
+def whlyt_user_agent(contact: str | None = None) -> str:
+    maintainer = contact or os.getenv("QINGHAI_RAG_CONTACT") or "contact-not-configured"
+    return f"QinghaiRAG/0.1 (+{maintainer}; provenance-first research crawler)"
 
 
 def _candidate_id(url: str) -> str:
@@ -148,11 +154,18 @@ def discover_whlyt_articles(
     timeout: float = 30.0,
     interval_seconds: float = 1.0,
     max_pages: int | None = None,
+    contact: str | None = None,
     session: requests.Session | None = None,
 ) -> tuple[list[SourceCandidateRecord], dict[str, int]]:
     client = session or requests.Session()
     if session is None:
         client.trust_env = False
+    client.headers.update(
+        {
+            "User-Agent": whlyt_user_agent(contact),
+            "Accept-Language": "zh-CN,zh;q=0.9",
+        }
+    )
     common: dict[str, Any] = {
         "keyword": keyword,
         "category": category,
