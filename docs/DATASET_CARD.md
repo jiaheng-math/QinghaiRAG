@@ -31,13 +31,28 @@ The latest audited build contains:
 
 This candidate meets the configured V1 ranges for sources, QA, manually checked facts, and manually checked QA. It remains below the repository's final V1 targets for entities (2,000), facts (10,000), and chunks (10,000), so it must be described as a release candidate rather than the final benchmark-grade release.
 
-## Splits
+## Configurations
 
-- `sources`: source and licence registry.
+The Hub repository uses configs/subsets because the tables have different schemas. Each config currently exposes a `full` split:
+
+- `source_registry`: source and licence registry.
 - `entities`: canonical entities and aliases.
 - `facts`: evidence-backed triples.
-- `chunks_open`: full-text-compatible or project-authored synthetic retrieval units.
-- `qa_eval`: answerable and unanswerable evaluation questions.
+- `open_chunks`: full-text-compatible or project-authored synthetic retrieval units.
+- `qa_benchmark`: answerable and unanswerable evaluation questions.
+- `audit_samples`: de-identified accepted review samples and correction records.
+
+For example:
+
+```python
+from datasets import load_dataset
+
+facts = load_dataset("jiaheng-math/QinghaiRAG", "facts", split="full")
+qa = load_dataset("jiaheng-math/QinghaiRAG", "qa_benchmark", split="full")
+audits = load_dataset("jiaheng-math/QinghaiRAG", "audit_samples", split="full")
+```
+
+The QA config intentionally remains a single `full` split in this release candidate. A future train/validation/test layout will use entity- and source-aware grouping rather than random row splitting, which would leak near-identical facts across partitions.
 
 ## Intended uses
 
@@ -78,4 +93,4 @@ Coverage is incomplete and geographically imbalanced, and source availability ca
 
 ## Licensing
 
-Code licensing does not determine dataset licensing, and this DatasetDict has no blanket content licence. Inspect each `sources` record for `license_status`, `release_policy`, `raw_text_release`, attribution requirements, and the original URL. Raw/local-only and restricted content is excluded. See `docs/SOURCE_POLICY.md`.
+Code licensing does not determine dataset licensing, and the dataset repository has no blanket content licence. Inspect each `source_registry` record for `license_status`, `release_policy`, `raw_text_release`, attribution requirements, and the original URL. Raw/local-only and restricted content is excluded. See `docs/SOURCE_POLICY.md`.

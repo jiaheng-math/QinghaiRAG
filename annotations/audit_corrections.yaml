@@ -1,0 +1,32 @@
+review_id: review_v1_qa_corrections_2026
+reviewed_at: "2026-07-11"
+reviewer_role: maintainer
+review_method: Manual QA batch inspection followed by generator-level correction and full regeneration.
+records:
+  - audit_id: audit_correction_q_188a7a286793
+    record_type: qa
+    record_id: q_188a7a286793
+    record_snapshot: "问题包含 related_to_concept 元数据关系，把拟入选名单名称当作可回答的领域属性。"
+    review_label: excluded
+    error_type: metadata_relation_leakage
+    correction_result: "从多跳和比较 QA 的允许关系中排除 related_to_concept 与 mentioned_in_source；旧题不再生成。"
+    review_notes: "元数据仍保留在事实表和图谱中，但不作为领域问答目标。"
+    source_ids: []
+  - audit_id: audit_correction_q_3934fee7e473
+    record_type: qa
+    record_id: q_3934fee7e473
+    record_snapshot: "不使用外部知识时，可列出哪些青海省相关项目？"
+    review_label: corrected
+    error_type: ambiguous_relation_wording
+    correction_result: "改为明确询问流传地区：不使用外部知识时，能确认哪些项目的流传地区是青海省？"
+    review_notes: "避免把 located_in=青海省误解为所有与青海有关的项目。"
+    source_ids: [src_huangzhong_4th_ich_2025]
+  - audit_id: audit_correction_q_0f3b1adac3be
+    record_type: qa
+    record_id: q_0f3b1adac3be
+    record_snapshot: "流传地区为贵德县的区域汇总题，答案包含超过 100 个项目。"
+    review_label: excluded
+    error_type: answer_exceeds_retrieval_budget
+    correction_result: "区域汇总题最多保留 5 个项目，与默认 top_k=5 对齐；超大分组不再生成 QA。"
+    review_notes: "事实和图谱记录不受影响，只移除无法公平检索评测的题目。"
+    source_ids: [src_guide_city_plan_ich_inventory_2015_2030]
