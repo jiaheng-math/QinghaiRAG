@@ -37,7 +37,7 @@ def compute_source_coverage(sources: list[SourceRecord], targets: dict[str, Any]
             if source_type in config.get("source_types", []):
                 level_counts[level] += 1
 
-        topic_text = " ".join([source.title, *source.topic])
+        topic_text = " ".join(source.topic)
         matched_topics = [
             topic
             for topic, config in topic_targets.items()
@@ -116,8 +116,9 @@ def compute_source_coverage(sources: list[SourceRecord], targets: dict[str, Any]
         "gaps": gaps,
         "passed": not gaps,
         "classification_note": (
-            "Topic coverage uses explicit topic labels plus title keywords; region coverage uses "
-            "only registry region metadata and configured administrative aliases."
+            "Topic coverage uses only explicit registry topic labels; titles do not count toward "
+            "coverage. Region coverage uses only registry region metadata and configured "
+            "administrative aliases."
         ),
     }
 

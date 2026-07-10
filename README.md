@@ -143,7 +143,7 @@ V1 source coverage is audited separately so a large but narrow registry cannot p
 python scripts/17_audit_source_coverage.py
 ```
 
-This writes `data/interim/source_coverage_report.{json,md}` with source-level, topic, prefecture-level region, and region-by-topic coverage plus explicit gaps. Targets and administrative aliases are machine-readable in `configs/coverage_targets.yaml`.
+This writes `data/interim/source_coverage_report.{json,md}` with source-level, topic, prefecture-level region, and region-by-topic coverage plus explicit gaps. Topic targets count only explicit registry labels, so a site brand in a page title cannot create false coverage. Targets and administrative aliases are machine-readable in `configs/coverage_targets.yaml`.
 
 ## AutoDL: persistent cache and recovery
 

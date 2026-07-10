@@ -56,7 +56,7 @@ def test_coverage_audit_resolves_county_aliases_and_reports_gaps():
             "s2",
             "provincial_culture_tourism_department",
             title="青海湖生态旅游",
-            topic=["文旅动态"],
+            topic=["文旅动态", "生态旅游"],
             region=["青海省"],
         ),
         _source(
@@ -81,3 +81,24 @@ def test_coverage_audit_resolves_county_aliases_and_reports_gaps():
         "海西蒙古族藏族自治州",
     }
     assert "Region × topic matrix" in render_coverage_markdown(report)
+
+
+def test_coverage_does_not_infer_topic_from_site_brand_in_title():
+    targets = {
+        "topics": {
+            "博物馆与文化场馆": {
+                "aliases": ["博物馆", "文化馆"],
+                "min_sources": 1,
+            }
+        }
+    }
+    source = _source(
+        "s1",
+        "national_official_database",
+        title="热贡艺术 - 中国非物质文化遗产数字博物馆",
+        topic=["非遗", "传统美术"],
+    )
+
+    report = compute_source_coverage([source], targets)
+
+    assert report["assessment"]["topics"]["博物馆与文化场馆"]["count"] == 0
