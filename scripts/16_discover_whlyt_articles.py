@@ -25,6 +25,11 @@ def main() -> None:
     parser.add_argument("--max-pages", type=int, default=None)
     parser.add_argument("--contact", default=None)
     parser.add_argument(
+        "--append",
+        action="store_true",
+        help="Append to an existing candidate queue instead of rebuilding this query's output",
+    )
+    parser.add_argument(
         "--output", default=str(PATHS.interim / "source_candidates_whlyt_articles.jsonl")
     )
     parser.add_argument("--register", action="store_true")
@@ -41,9 +46,14 @@ def main() -> None:
         contact=args.contact,
     )
     output = Path(args.output)
-    existing = {
-        item.source_id: item for item in read_jsonl(output, SourceCandidateRecord)
-    }
+    existing = (
+        {
+            item.source_id: item
+            for item in read_jsonl(output, SourceCandidateRecord)
+        }
+        if args.append
+        else {}
+    )
     existing.update({item.source_id: item for item in discovered})
     records = sorted(existing.values(), key=lambda item: item.source_id)
     write_jsonl_atomic(output, records, sort_key="source_id")

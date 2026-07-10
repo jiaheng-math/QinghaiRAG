@@ -4,6 +4,7 @@ import hashlib
 import os
 import re
 import time
+import unicodedata
 from datetime import date
 from typing import Any
 from urllib.parse import parse_qs, urljoin, urlparse, urlunparse
@@ -32,6 +33,33 @@ def _http_content_url(href: str) -> str:
     absolute = urljoin(WHLYT_BASE_URL, href)
     parsed = urlparse(absolute)
     return urlunparse(("http", "whlyt.qinghai.gov.cn", parsed.path, "", "", ""))
+
+
+def _title_key(value: str) -> str:
+    return "".join(unicodedata.normalize("NFKC", value).split())
+
+
+def deduplicate_whlyt_candidates(
+    records: list[SourceCandidateRecord],
+) -> list[SourceCandidateRecord]:
+    section_priority = {"content": 5, "qhwl": 4, "wldt": 4, "zwgk": 3, "tzgg": 3, "dffc": 2}
+
+    def priority(item: SourceCandidateRecord) -> tuple[int, str, str]:
+        parts = [part for part in urlparse(item.url).path.split("/") if part]
+        section = parts[0] if parts else ""
+        return (
+            section_priority.get(section, 1),
+            item.catalog_metadata.get("published_at", ""),
+            item.url,
+        )
+
+    selected: dict[str, SourceCandidateRecord] = {}
+    for record in records:
+        key = _title_key(record.title)
+        current = selected.get(key)
+        if current is None or priority(record) > priority(current):
+            selected[key] = record
+    return sorted(selected.values(), key=lambda item: item.source_id)
 
 
 def inspect_whlyt_article(html: str) -> dict[str, Any]:
@@ -101,6 +129,9 @@ def parse_whlyt_search_page(
         if not title:
             continue
         url = _http_content_url(item.get("href", ""))
+        last_path_part = urlparse(url).path.rstrip("/").rsplit("/", maxsplit=1)[-1]
+        if not re.search(r"\d", last_path_part):
+            continue
         path_match = re.fullmatch(r"/content/(\d+)", urlparse(url).path)
         url_content_id = path_match.group(1) if path_match else ""
         source_suffix = url_content_id or hashlib.sha256(url.encode()).hexdigest()[:12]
@@ -191,6 +222,8 @@ def discover_whlyt_articles(
             response.text, keyword=keyword, category=category, scope=scope
         )
         records.extend(page_records)
-    deduplicated = {record.source_id: record for record in records}
+    deduplicated_by_source = {record.source_id: record for record in records}
+    unique_records = deduplicate_whlyt_candidates(list(deduplicated_by_source.values()))
     metadata["fetched_pages"] = total_pages
-    return sorted(deduplicated.values(), key=lambda item: item.source_id), metadata
+    metadata["deduplicated_titles"] = len(deduplicated_by_source) - len(unique_records)
+    return unique_records, metadata
