@@ -94,7 +94,8 @@ def prepare_release_package(
     manifest = {
         "dataset": "QinghaiRAG",
         "version": RELEASE_VERSION,
-        "repository": "https://github.com/jiaheng-math/QinghaiRAG",
+        "code_repository": "https://github.com/jiaheng-math/QinghaiRAG",
+        "hub_repository": "https://huggingface.co/datasets/zhangjh123/QinghaiRAG",
         "hub_layout": "one full split per config/subset",
         "configs": jsonl_manifest,
         "reports": copied_reports,

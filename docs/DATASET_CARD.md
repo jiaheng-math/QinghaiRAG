@@ -47,9 +47,9 @@ For example:
 ```python
 from datasets import load_dataset
 
-facts = load_dataset("jiaheng-math/QinghaiRAG", "facts", split="full")
-qa = load_dataset("jiaheng-math/QinghaiRAG", "qa_benchmark", split="full")
-audits = load_dataset("jiaheng-math/QinghaiRAG", "audit_samples", split="full")
+facts = load_dataset("zhangjh123/QinghaiRAG", "facts", split="full")
+qa = load_dataset("zhangjh123/QinghaiRAG", "qa_benchmark", split="full")
+audits = load_dataset("zhangjh123/QinghaiRAG", "audit_samples", split="full")
 ```
 
 The QA config intentionally remains a single `full` split in this release candidate. A future train/validation/test layout will use entity- and source-aware grouping rather than random row splitting, which would leak near-identical facts across partitions.
