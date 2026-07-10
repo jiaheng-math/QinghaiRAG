@@ -12,6 +12,15 @@ def test_chinese_chunking_preserves_offsets_and_overlap():
     assert chunks[1][0] < chunks[0][1]
 
 
+def test_chunking_finishes_at_text_end_without_repeating_last_punctuation():
+    text = "前段内容。" * 80 + "这是没有句号的正文尾部" * 20
+    chunks = split_text(text, chunk_size_chars=120, overlap_chars=20)
+
+    assert chunks[-1][1] == len(text)
+    assert all(left[0] < right[0] for left, right in zip(chunks, chunks[1:]))
+    assert len(chunks) <= 12
+
+
 def test_restricted_source_never_builds_open_text_chunk():
     source = SourceRecord(
         source_id="src_restricted",

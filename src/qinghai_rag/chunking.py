@@ -40,8 +40,11 @@ def split_text(
     start = 0
     while start < len(text):
         target = min(start + chunk_size_chars, len(text))
-        candidates = [point for point in boundaries if start < point <= target]
-        end = max(candidates) if candidates else target
+        if target == len(text):
+            end = len(text)
+        else:
+            candidates = [point for point in boundaries if start < point <= target]
+            end = max(candidates) if candidates else target
         if end <= start:
             end = min(start + chunk_size_chars, len(text))
         value = text[start:end].strip()
@@ -52,6 +55,9 @@ def split_text(
             chunks.append((real_start, real_end, value))
         if end >= len(text):
             break
+        if end - start <= overlap_chars:
+            start = end
+            continue
         proposed = max(end - overlap_chars, start + 1)
         previous_boundaries = [point for point in boundaries if start < point <= proposed]
         start = max(previous_boundaries) if previous_boundaries else proposed
