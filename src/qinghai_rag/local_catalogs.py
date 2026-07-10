@@ -17,10 +17,14 @@ from qinghai_rag.source_registry import normalize_domain
 
 class ReviewedCatalogRow(StrictRecord):
     sequence: int = Field(ge=1)
-    project_number: str
+    source_sequence: int | None = Field(default=None, ge=1)
+    project_number: str = ""
     project_name: str
+    canonical_project_name: str | None = None
     category: str
     circulation_area: str
+    level: str | None = None
+    inheritors: list[str] = Field(default_factory=list)
 
 
 class ReviewedInheritorRow(StrictRecord):
@@ -75,10 +79,18 @@ class ReviewedLocalCatalog(ReviewedCatalogBase):
         sequences = [row.sequence for row in self.rows]
         if sequences != list(range(1, self.expected_rows + 1)):
             raise ValueError("reviewed row sequences must be contiguous and ordered")
-        if len({row.project_name for row in self.rows}) != len(self.rows):
-            raise ValueError("reviewed project names must be unique")
-        if len({row.project_number for row in self.rows}) != len(self.rows):
+        project_keys = {
+            (row.canonical_project_name or row.project_name, row.level or self.level)
+            for row in self.rows
+        }
+        if len(project_keys) != len(self.rows):
+            raise ValueError("reviewed project-level pairs must be unique")
+        project_numbers = [row.project_number for row in self.rows if row.project_number]
+        if len(set(project_numbers)) != len(project_numbers):
             raise ValueError("reviewed project numbers must be unique")
+        for row in self.rows:
+            if len(set(row.inheritors)) != len(row.inheritors):
+                raise ValueError("reviewed inheritors must be unique within each row")
         if self.publication_status == "proposed" and not self.proposed_concept:
             raise ValueError("proposed catalogs require proposed_concept")
         return self
@@ -156,14 +168,20 @@ def _reviewed_fact(
     obj: str,
     object_type: str,
 ) -> FactRecord:
-    subject = normalize_entity_name(row.project_name)
+    subject = normalize_entity_name(row.canonical_project_name or row.project_name)
     normalized_object = (
         normalize_region(obj) if object_type == "REGION" else normalize_entity_name(obj)
     )
+    source_sequence = row.source_sequence or row.sequence
+    project_number = f"项目编号：{row.project_number}；" if row.project_number else ""
+    level = row.level or review.level
+    inheritors = f"；传承人：{'、'.join(row.inheritors)}" if row.inheritors else ""
     evidence = (
-        f"人工核验官方附件表格第{row.sequence}行：项目编号：{row.project_number}；"
+        f"人工核验官方材料表格第{row.sequence}条（源表序号{source_sequence}）："
+        f"{project_number}"
         f"项目名称：{row.project_name}；项目类别：{row.category}；"
-        f"流传地区：{row.circulation_area}；名录批次：{review.batch}"
+        f"流传地区：{row.circulation_area}；项目级别：{level}{inheritors}；"
+        f"名录批次：{review.batch}"
     )
     return FactRecord(
         fact_id=stable_fact_id(subject, predicate, normalized_object, review.source_id),
@@ -261,9 +279,7 @@ def build_reviewed_catalog_facts(review: ReviewedCatalog) -> list[FactRecord]:
         return sorted(facts, key=lambda fact: fact.fact_id)
     facts = []
     for row in review.rows:
-        facts.append(
-            _reviewed_fact(review, row, "belongs_to_category", row.category, "CATEGORY")
-        )
+        facts.append(_reviewed_fact(review, row, "belongs_to_category", row.category, "CATEGORY"))
         if review.publication_status == "proposed":
             facts.append(
                 _reviewed_fact(
@@ -275,13 +291,21 @@ def build_reviewed_catalog_facts(review: ReviewedCatalog) -> list[FactRecord]:
                 )
             )
         else:
+            level = row.level or review.level
             facts.extend(
                 [
                     _reviewed_fact(review, row, "located_in", row.circulation_area, "REGION"),
-                    _reviewed_fact(review, row, "has_level", review.level, "CONCEPT"),
+                    _reviewed_fact(review, row, "has_level", level, "CONCEPT"),
                 ]
             )
-    return sorted(facts, key=lambda fact: fact.fact_id)
+            facts.extend(
+                _reviewed_fact(review, row, "inherited_by", person, "PERSON")
+                for person in row.inheritors
+            )
+    unique_facts: dict[str, FactRecord] = {}
+    for fact in facts:
+        unique_facts.setdefault(fact.fact_id, fact)
+    return sorted(unique_facts.values(), key=lambda fact: fact.fact_id)
 
 
 def merge_reviewed_catalog_facts(

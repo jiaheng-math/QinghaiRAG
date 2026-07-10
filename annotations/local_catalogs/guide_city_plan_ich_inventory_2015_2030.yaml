@@ -1,0 +1,129 @@
+review_id: review_guide_city_plan_ich_inventory_2015_2030
+catalog_kind: project
+reviewed_at: "2026-07-10"
+reviewer_role: maintainer
+review_method: Complete row-by-row visual review of PDF pages 93-95 against the embedded text layer; all 111 rows and the ambiguous names were explicitly confirmed.
+source_id: src_guide_city_plan_ich_inventory_2015_2030
+title: 贵德县城市总体规划（2015—2030年）附表6：主要非物质文化遗产资源一览表
+publisher: 贵德县人民政府
+parent_page_url: https://www.guide.gov.cn/upload/gdxrmzf/gdfj/202102021633462705.pdf
+attachment_url: https://www.guide.gov.cn/upload/gdxrmzf/gdfj/202102021633462705.pdf
+attachment_sha256: d087ef1b846e2f55c516fed9e71096da02b48a36eeb71cba2560d9669c73a85d
+raw_path: data/raw/local_official/guide_city_plan_2015_2030.pdf
+region: [青海省, 海南藏族自治州, 贵德县]
+topic: [非遗, 民族文化, 文旅政策, 地方非遗名录]
+level: 分级资源名录
+batch: 贵德县城市总体规划附表6（PDF第93—95页）
+expected_rows: 111
+rows:
+  - {sequence: 1, source_sequence: 1, project_name: 贵德尚尤则柔, category: 民间音乐, circulation_area: 贵德县, level: 国家级, inheritors: [波毛卓玛, 拉毛]}
+  - {sequence: 2, source_sequence: 2, project_name: 藏族拉伊, category: 民间音乐, circulation_area: 贵德县, level: 国家级, inheritors: [切吉卓玛]}
+  - {sequence: 3, source_sequence: 1, project_name: 贵德县罗汉堂寺、昨那寺鹿舞, category: 民间舞蹈, circulation_area: 贵德县, level: 省级}
+  - {sequence: 4, source_sequence: 2, project_name: 安多藏族“勒”, category: 民间音乐, circulation_area: 贵德县, level: 省级}
+  - {sequence: 5, source_sequence: 3, project_name: 《贵德六月庙会》, canonical_project_name: 贵德六月庙会, category: 岁时节令, circulation_area: 贵德县, level: 省级, inheritors: [许得成, 许景庆]}
+  - {sequence: 6, source_sequence: 4, project_name: 《贵德民间传统青砖制作》, canonical_project_name: 贵德民间传统青砖制作, category: 传统技艺, circulation_area: 贵德县, level: 省级, inheritors: [秦海宝]}
+  - {sequence: 7, source_sequence: 1, project_name: 《安多藏族“勒”》, canonical_project_name: 安多藏族“勒”, category: 传统音乐, circulation_area: 贵德县, level: 海南州级, inheritors: [多杰隆主]}
+  - {sequence: 8, source_sequence: 2, project_name: 《卓舞》《诵经调》, canonical_project_name: 卓舞、诵经调, category: 传统舞蹈, circulation_area: 贵德县, level: 海南州级, inheritors: [多杰隆主]}
+  - {sequence: 9, source_sequence: 3, project_name: 《葫芦雕刻》, canonical_project_name: 葫芦雕刻, category: 传统技艺, circulation_area: 贵德县, level: 海南州级, inheritors: [李积荣]}
+  - {sequence: 10, source_sequence: 4, project_name: 《松巴酩馏酒》, canonical_project_name: 松巴酩馏酒, category: 传统技艺, circulation_area: 贵德县, level: 海南州级, inheritors: [兰克见]}
+  - {sequence: 11, source_sequence: 5, project_name: 《郭密辫套》, canonical_project_name: 郭密辫套, category: 传统技艺, circulation_area: 贵德县, level: 海南州级, inheritors: [文措卓玛]}
+  - {sequence: 12, source_sequence: 6, project_name: 《贵德传统木雕》, canonical_project_name: 贵德传统木雕, category: 传统技艺, circulation_area: 贵德县, level: 海南州级, inheritors: [党国平]}
+  - {sequence: 13, source_sequence: 7, project_name: 《贵德曼唐》, canonical_project_name: 贵德曼唐, category: 传统美术, circulation_area: 贵德县, level: 海南州级, inheritors: [索安项吉]}
+  - {sequence: 14, source_sequence: 8, project_name: 《铁瓦寺法舞》, canonical_project_name: 铁瓦寺法舞, category: 民间舞蹈, circulation_area: 贵德县, level: 海南州级}
+  - {sequence: 15, source_sequence: 9, project_name: 《格萨尔 说唱》, canonical_project_name: 格萨尔说唱, category: 民间音乐, circulation_area: 贵德县, level: 海南州级, inheritors: [多杰才让]}
+  - {sequence: 16, source_sequence: 10, project_name: 《滴水崖花儿会》, canonical_project_name: 滴水崖花儿会, category: 岁时节令, circulation_area: 贵德县, level: 海南州级, inheritors: [杨毛措]}
+  - {sequence: 17, source_sequence: 1, project_name: 贵德白马寺的传说, category: 民间文学, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 18, source_sequence: 2, project_name: 贵德查达长佛寺的传说, category: 民间文学, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 19, source_sequence: 3, project_name: 青田断脉传说, category: 民间文学, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 20, source_sequence: 4, project_name: 文昌庙的传说, category: 民间文学, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 21, source_sequence: 5, project_name: 棋迷搬石, category: 民间文学, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 22, source_sequence: 6, project_name: 麦仁罐, category: 民间文学, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 23, source_sequence: 7, project_name: 古建彩绘、, canonical_project_name: 古建彩绘, category: 传统美术, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 24, source_sequence: 8, project_name: 安多天然绘画艺术, category: 传统美术, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 25, source_sequence: 9, project_name: 藏族拉伊, category: 传统音乐, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 26, source_sequence: 10, project_name: 民间小调, category: 传统音乐, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 27, source_sequence: 11, project_name: 藏族弹唱, category: 传统音乐, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 28, source_sequence: 12, project_name: 鹰笛, category: 传统音乐, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 29, source_sequence: 13, project_name: 太平鼓, category: 传统音乐, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 30, source_sequence: 14, project_name: 回族宴席曲, category: 传统音乐, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 31, source_sequence: 15, project_name: 成人迎席曲, category: 传统音乐, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 32, source_sequence: 16, project_name: 藏族民间古典音乐, category: 传统音乐, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 33, source_sequence: 17, project_name: 大头罗汉戏柳翠, category: 传统舞蹈, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 34, source_sequence: 18, project_name: 打腰鼓, category: 传统舞蹈, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 35, source_sequence: 19, project_name: 狮子舞, category: 传统舞蹈, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 36, source_sequence: 20, project_name: 龙舞, category: 传统舞蹈, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 37, source_sequence: 21, project_name: 社火, category: 传统舞蹈, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 38, source_sequence: 22, project_name: 秧歌, category: 传统舞蹈, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 39, source_sequence: 23, project_name: 踩高跷, category: 传统舞蹈, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 40, source_sequence: 24, project_name: 洛乙海社火, category: 传统舞蹈, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 41, source_sequence: 25, project_name: 秦腔, category: 传统戏剧, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 42, source_sequence: 26, project_name: 眉户戏, category: 传统戏剧, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 43, source_sequence: 27, project_name: 寺院法舞, category: 传统戏剧, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 44, source_sequence: 28, project_name: 瞎子观灯, category: 传统戏剧, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 45, source_sequence: 29, project_name: 马鞍制作, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 46, source_sequence: 30, project_name: 背斗编制技艺, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 47, source_sequence: 31, project_name: 藏族造纸, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 48, source_sequence: 32, project_name: 传统剪纸, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 49, source_sequence: 33, project_name: 青稞甜醅, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 50, source_sequence: 34, project_name: 麦茶, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 51, source_sequence: 35, project_name: 面茶, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 52, source_sequence: 36, project_name: 拉条, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 53, source_sequence: 37, project_name: 寸寸面, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 54, source_sequence: 38, project_name: 馓饭, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 55, source_sequence: 39, project_name: 搅团, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 56, source_sequence: 40, project_name: 酿皮, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 57, source_sequence: 41, project_name: 酸奶, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 58, source_sequence: 42, project_name: 氽灌肠, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 59, source_sequence: 43, project_name: 焐洋芋, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 60, source_sequence: 44, project_name: 尕让面片, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 61, source_sequence: 45, project_name: 黑油耙摞, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 62, source_sequence: 46, project_name: 中华蜂蜜, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 63, source_sequence: 47, project_name: 法舞面具, category: 传统技艺, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 64, source_sequence: 48, project_name: 藏族少女成年礼, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 65, source_sequence: 49, project_name: 回族婚礼习俗, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 66, source_sequence: 50, project_name: 藏族婚礼习俗, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 67, source_sequence: 51, project_name: 天葬, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 68, source_sequence: 52, project_name: 过年, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 69, source_sequence: 53, project_name: 二月二节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 70, source_sequence: 54, project_name: 清明节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 71, source_sequence: 55, project_name: 十月一, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 72, source_sequence: 56, project_name: 人生节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 73, source_sequence: 57, project_name: 冬至节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 74, source_sequence: 58, project_name: 四月八, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 75, source_sequence: 59, project_name: 五月十三雨水节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 76, source_sequence: 60, project_name: 朝山会, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 77, source_sequence: 61, project_name: 六月六沐浴节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 78, source_sequence: 62, project_name: 七夕节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 79, source_sequence: 63, project_name: 中元节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 80, source_sequence: 64, project_name: 财神节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 81, source_sequence: 65, project_name: 太平村送火把, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 82, source_sequence: 66, project_name: 大滩村跳火堆, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 83, source_sequence: 67, project_name: 太平村打天官, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 84, source_sequence: 68, project_name: 端午节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 85, source_sequence: 69, project_name: 中秋节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 86, source_sequence: 70, project_name: 重阳节, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 87, source_sequence: 71, project_name: 天社“春社”, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 88, source_sequence: 72, project_name: 正月二十, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 89, source_sequence: 73, project_name: 龙王庙四月八庙会, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 90, source_sequence: 74, project_name: 祭敖包, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 91, source_sequence: 75, project_name: 长佛寺求子还愿, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 92, source_sequence: 76, project_name: 过关煞, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 93, source_sequence: 77, project_name: 除夕夜拜文昌, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 94, source_sequence: 78, project_name: 抓周试儿, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 95, source_sequence: 79, project_name: 开耕仪式, category: 民俗, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 96, source_sequence: 80, project_name: 艾灸, category: 传统医药, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 97, source_sequence: 81, project_name: 温泉药浴, category: 传统医药, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 98, source_sequence: 82, project_name: 藏药卵石浴, category: 传统医药, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 99, source_sequence: 83, project_name: 放血疗法, category: 传统医药, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 100, source_sequence: 84, project_name: 击鼓传花, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 101, source_sequence: 85, project_name: 改绷绷, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 102, source_sequence: 86, project_name: 丢手绢, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 103, source_sequence: 87, project_name: 老鹰捉小鸡, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 104, source_sequence: 88, project_name: 踢毽子, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 105, source_sequence: 89, project_name: 打毛蛋, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 106, source_sequence: 90, project_name: 打秋千, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 107, source_sequence: 91, project_name: 跳方方, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 108, source_sequence: 92, project_name: 耍玛丫, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 109, source_sequence: 93, project_name: 抽陀螺, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 110, source_sequence: 94, project_name: 官兵捉贼, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}
+  - {sequence: 111, source_sequence: 95, project_name: 赛牦牛, category: 传统体育、游艺与杂技, circulation_area: 贵德县, level: 贵德县级}

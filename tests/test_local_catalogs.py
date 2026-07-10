@@ -125,6 +125,52 @@ def test_proposed_catalog_does_not_claim_final_level_or_location(tmp_path):
     assert "located_in" not in {fact.predicate for fact in facts}
 
 
+def test_mixed_level_inventory_builds_inheritor_facts_and_canonical_subject(tmp_path):
+    review, _ = _review(tmp_path)
+    payload = review.model_dump(mode="json")
+    payload["expected_rows"] = 2
+    payload["rows"] = [
+        {
+            "sequence": 1,
+            "source_sequence": 1,
+            "project_name": "《项目甲》",
+            "canonical_project_name": "项目甲",
+            "category": "民间音乐",
+            "circulation_area": "贵德县",
+            "level": "国家级",
+            "inheritors": ["甲某", "乙某"],
+        },
+        {
+            "sequence": 2,
+            "source_sequence": 1,
+            "project_name": "《项目甲》",
+            "canonical_project_name": "项目甲",
+            "category": "岁时节令",
+            "circulation_area": "贵德县",
+            "level": "县级",
+        },
+    ]
+    inventory = ReviewedLocalCatalog.model_validate(payload)
+
+    facts = build_reviewed_catalog_facts(inventory)
+
+    assert len(facts) == 7
+    assert len({fact.fact_id for fact in facts}) == len(facts)
+    assert {fact.subject for fact in facts} == {"项目甲"}
+    assert {fact.object for fact in facts if fact.predicate == "has_level"} == {
+        "国家级",
+        "县级",
+    }
+    assert {fact.object for fact in facts if fact.predicate == "belongs_to_category"} == {
+        "传统音乐",
+        "民俗",
+    }
+    assert {fact.object for fact in facts if fact.predicate == "inherited_by"} == {
+        "甲某",
+        "乙某",
+    }
+
+
 def test_reviewed_inheritor_catalog_excludes_personal_columns():
     review = ReviewedLocalInheritorCatalog.model_validate(
         {
@@ -169,3 +215,6 @@ def test_reviewed_inheritor_catalog_excludes_personal_columns():
 
 def test_local_category_alias_normalizes_to_benchmark_taxonomy():
     assert normalize_entity_name("传统体育游艺与杂技") == "传统体育、游艺与杂技"
+    assert normalize_entity_name("民间音乐") == "传统音乐"
+    assert normalize_entity_name("民间舞蹈") == "传统舞蹈"
+    assert normalize_entity_name("岁时节令") == "民俗"

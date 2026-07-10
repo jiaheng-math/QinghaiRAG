@@ -43,6 +43,8 @@ Representative-inheritor imports retain only the minimum benchmark fields needed
 
 When the same approved official record explicitly states a project's level, the corresponding inheritor row may include `project_level`. Omit it from every row where the level applies only to the representative person or is otherwise ambiguous.
 
+Mixed-level resource inventories may set `level`, `source_sequence`, `inheritors`, and (when source punctuation or typography is not a stable entity name) `canonical_project_name` per project row. The evidence retains the source project name while the graph uses the reviewed canonical name. Legacy source categories such as `民间音乐`, `民间舞蹈`, and `岁时节令` are normalized to the benchmark taxonomy without changing the quoted evidence.
+
 ## Conflicts
 
 Retain both evidence-backed facts, mark them unverified or lower confidence, and explain the conflict in `notes`. Do not create a deterministic synthetic sentence or QA answer until a reviewer resolves the scope/date/identity issue. Do not silently select the newest page without checking what changed.
