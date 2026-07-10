@@ -11,6 +11,7 @@ from qinghai_rag.schemas import FactRecord, QARecord
 
 LOGGER = logging.getLogger(__name__)
 REFUSAL = "当前数据集中没有足够依据回答。"
+MAX_REGIONAL_PROJECTS = 5
 
 RELATION_LABELS = {
     "belongs_to_category": "类别",
@@ -167,6 +168,8 @@ def generate_regional(facts: list[FactRecord], target: int) -> list[QARecord]:
     ]
     for (predicate, region), group in sorted(groups.items()):
         projects = sorted({normalize_entity_name(fact.subject) for fact in group})
+        if len(projects) > MAX_REGIONAL_PROJECTS:
+            continue
         answer = "、".join(projects) + "。"
         templates = located_templates if predicate == "located_in" else declared_templates
         variant = _template_variant(f"{predicate}\0{region}", len(templates))

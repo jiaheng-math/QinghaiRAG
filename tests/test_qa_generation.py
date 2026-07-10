@@ -83,6 +83,26 @@ def test_regional_aggregation_names_the_circulation_area_relation():
     assert "相关项目" not in questions[0].question
 
 
+def test_regional_aggregation_skips_answers_larger_than_retrieval_top_k():
+    facts = [
+        _located_fact(f"located_{index}", f"项目{index}", "贵德县")
+        for index in range(6)
+    ]
+
+    assert generate_regional(facts, target=10) == []
+
+
+def test_regional_aggregation_keeps_answers_within_retrieval_top_k():
+    facts = [
+        _located_fact(f"located_{index}", f"项目{index}", "贵德县")
+        for index in range(5)
+    ]
+
+    [question] = generate_regional(facts, target=10)
+    assert len(question.evidence_fact_ids) == 5
+    assert question.answer == "项目0、项目1、项目2、项目3、项目4。"
+
+
 def test_qa_minimum_defaults_to_configured_release_tier():
     targets = {"tiers": {"v0.1": {"qa": {"min": 300}}}}
 
