@@ -4,7 +4,7 @@ QinghaiRAG is a provenance-first dataset package and reproducible RAG/Graph RAG 
 
 The project is deliberately not marketed as a “Qinghai tourism foundation model.” Its first goal is a small, auditable benchmark in which every released fact, chunk, and answerable QA record resolves to a registered `source_id` and `source_url`.
 
-> **Important:** the committed release is toy data for testing the engineering pipeline. It contains placeholders and fictional organizations and must not be cited as cultural-heritage truth.
+> **Release status:** the latest audited build is a real-data `1.0.0-rc1` candidate (868 sources, 1,595 facts, 1,000 QA; 511 facts and 300 QA manually checked). It is no longer the original toy seed, but it is still below the configured final V1 entity/fact/chunk scale targets. Run the validator and statistics report against the exact downloaded snapshot before citing benchmark results.
 
 ## Three release tiers
 

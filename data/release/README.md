@@ -1,6 +1,8 @@
 # QinghaiRAG release package
 
-This directory contains the five public dataset tables. The committed records are **toy examples**, not an authoritative Qinghai cultural-heritage dataset. They target the configured toy smoke-test range only; v0.1 is the first public showcase tier and v1.0 is the benchmark tier.
+This directory contains the five public dataset tables. The latest audited `1.0.0-rc1` build is a real-data benchmark candidate with 868 sources, 653 entities, 1,595 verified facts, 948 release-safe chunks, and 1,000 QA records. Of these, 511 facts and 300 QA records are manually checked.
+
+The candidate meets the configured V1 ranges for sources, QA, and manual review, but it remains below the final V1 entity/fact/chunk scale targets. Do not describe it as the final benchmark-grade release until `python scripts/11_dataset_stats.py` reports that all required V1 ranges are met.
 
 - `qinghai_sources.jsonl`: source registry and release decisions.
 - `qinghai_entities.jsonl`: normalized entities and aliases.
