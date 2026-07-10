@@ -1,4 +1,11 @@
-from qinghai_rag.rag.retriever import EvidenceAllocator, HybridRetriever, fuse_dense_sparse
+import networkx as nx
+
+from qinghai_rag.rag.retriever import (
+    EvidenceAllocator,
+    GraphRetriever,
+    HybridRetriever,
+    fuse_dense_sparse,
+)
 
 
 class FakeRetriever:
@@ -159,10 +166,26 @@ def test_hybrid_rerank_reserves_graph_evidence_when_open_text_fills_budget():
     )
     retriever = HybridRetriever(vector, graph, reranker=FakeReranker())
 
-    results = retriever.retrieve(
-        "海南州申报了哪些项目", mode="hybrid+rerank", top_k=3, budget=2
-    )
+    results = retriever.retrieve("海南州申报了哪些项目", mode="hybrid+rerank", top_k=3, budget=2)
 
     assert len(results) == 2
     assert results[-1]["evidence_id"] == "f1"
     assert any(item["kind"] == "graph" for item in results)
+
+
+def test_graph_matching_prefers_longest_overlapping_entity_mention():
+    graph = nx.MultiDiGraph()
+    graph.add_node("province", kind="entity", name="青海省", aliases=[])
+    graph.add_node(
+        "prefecture",
+        kind="entity",
+        name="青海省海南藏族自治州",
+        aliases=["海南藏族自治州"],
+    )
+    graph.add_node("project", kind="entity", name="藏族拉伊", aliases=[])
+    retriever = GraphRetriever.__new__(GraphRetriever)
+    retriever.graph = graph
+
+    matched = retriever._matched_nodes("青海省海南藏族自治州的藏族拉伊有哪些记录？")
+
+    assert matched == ["prefecture", "project"]

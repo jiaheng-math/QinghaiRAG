@@ -86,14 +86,27 @@ class GraphRetriever:
         }
 
     def _matched_nodes(self, query: str) -> list[str]:
-        matches = []
+        matches: list[tuple[str, str]] = []
         for node, data in self.graph.nodes(data=True):
             if data.get("kind") != "entity":
                 continue
             names = [data.get("name", ""), *data.get("aliases", [])]
-            if any(name and name in query for name in names):
-                matches.append(node)
-        return matches
+            matched_names = [name for name in names if name and name in query]
+            if matched_names:
+                matches.append((node, max(matched_names, key=len)))
+        # Prefer the most specific overlapping mention. For example, a query
+        # containing “青海省海南藏族自治州” also contains “青海省”; expanding from
+        # both nodes floods the graph results with province-wide facts. Keep
+        # disjoint mentions so comparison and multi-entity queries still work.
+        maximal = [
+            (node, mention)
+            for node, mention in matches
+            if not any(
+                mention != other_mention and mention in other_mention
+                for _, other_mention in matches
+            )
+        ]
+        return [node for node, _ in maximal]
 
     def retrieve(self, query: str, top_k: int = 10, hops: int = 2) -> list[dict[str, Any]]:
         matched = self._matched_nodes(query)
@@ -181,11 +194,7 @@ class EvidenceAllocator:
             }
             if not selected_ids & graph_evidence_ids:
                 best_graph = max(
-                    (
-                        item
-                        for key, item in merged.items()
-                        if key in graph_evidence_ids
-                    ),
+                    (item for key, item in merged.items() if key in graph_evidence_ids),
                     key=lambda item: item["allocation_score"],
                 )
                 if len(selected) < budget:
@@ -201,9 +210,7 @@ def _max_normalized(results: list[dict[str, Any]]) -> dict[str, float]:
     top = max(positive, default=0.0)
     if top <= 0:
         return {item["evidence_id"]: 1.0 for item in results}
-    return {
-        item["evidence_id"]: value / top for item, value in zip(results, positive) if value > 0
-    }
+    return {item["evidence_id"]: value / top for item, value in zip(results, positive) if value > 0}
 
 
 def fuse_dense_sparse(
@@ -304,9 +311,7 @@ class HybridRetriever:
                 reranked_chunks = [
                     item for item in candidates if item["evidence_id"] not in graph_evidence_ids
                 ]
-                return self.allocator.allocate(
-                    query, reranked_chunks, reranked_graph, budget
-                )
+                return self.allocator.allocate(query, reranked_chunks, reranked_graph, budget)
             return self.allocator.allocate(query, chunk_results, graph_results, budget)
         if rerank:
             results = self.reranker.rerank(query, results, top_k=budget)
@@ -320,12 +325,8 @@ def build_hybrid_retriever(
     config = load_project_config("rag.yaml")
     retrieval = config.get("retrieval", {})
     sparse_config = config.get("sparse", {})
-    vector = (
-        VectorRetriever(device=device) if (PATHS.cache / "faiss.index").exists() else None
-    )
-    graph = (
-        GraphRetriever() if (PATHS.cache / "qinghai_graph.json").exists() else None
-    )
+    vector = VectorRetriever(device=device) if (PATHS.cache / "faiss.index").exists() else None
+    graph = GraphRetriever() if (PATHS.cache / "qinghai_graph.json").exists() else None
     bm25 = None
     chunks_path = PATHS.release / "qinghai_chunks_open.jsonl"
     if sparse_config.get("enabled", True) and chunks_path.exists():
