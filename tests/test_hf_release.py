@@ -2,7 +2,12 @@ import json
 from pathlib import Path
 
 from qinghai_rag.config import ProjectPaths
-from qinghai_rag.hf_release import CONFIG_FILES, REPORT_FILES, prepare_release_package
+from qinghai_rag.hf_release import (
+    CONFIG_FILES,
+    REPORT_FILES,
+    prepare_release_package,
+    validate_release_package,
+)
 
 
 def _paths(tmp_path: Path) -> ProjectPaths:
@@ -54,6 +59,7 @@ def test_prepare_release_package_copies_auditable_artifacts(tmp_path: Path):
 
     output = tmp_path / "export"
     manifest = prepare_release_package(output, configs, source_files, paths)
+    (output / "README.md").write_text("# Test dataset card\n", encoding="utf-8")
 
     assert manifest["manual_review"] == {"facts": 1, "qa": 1, "audit_samples": 1}
     assert set(manifest["configs"]) == set(configs)
@@ -63,6 +69,7 @@ def test_prepare_release_package_copies_auditable_artifacts(tmp_path: Path):
     assert (output / "reports" / "QinghaiRAG_Technical_Report_1.0.0-rc1.pdf").exists()
     assert (output / "pipeline_configs" / "rag.yaml").exists()
     assert (output / "RELEASE_MANIFEST.json").exists()
+    assert validate_release_package(output)["status"] == "PASS"
 
 
 def test_prepare_release_package_requires_reports(tmp_path: Path):
@@ -81,3 +88,30 @@ def test_prepare_release_package_requires_reports(tmp_path: Path):
         assert "Missing required release reports" in str(exc)
     else:
         raise AssertionError("missing reports must block a release export")
+
+
+def test_validate_release_package_detects_tampering(tmp_path: Path):
+    paths = _paths(tmp_path)
+    for filename, (area, source_name) in REPORT_FILES.items():
+        source = getattr(paths, area) / source_name
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_text(f"report {filename}", encoding="utf-8")
+    for filename in CONFIG_FILES:
+        (paths.configs / filename).write_text("enabled: true\n", encoding="utf-8")
+    source_files = {"facts": "qinghai_facts.jsonl", "qa_benchmark": "qinghai_qa_eval.jsonl"}
+    configs = {
+        "facts": [],
+        "qa_benchmark": [],
+        "audit_samples": [],
+    }
+    for filename in source_files.values():
+        (paths.release / filename).write_text("", encoding="utf-8")
+    output = tmp_path / "export"
+    prepare_release_package(output, configs, source_files, paths)
+    (output / "README.md").write_text("# Test dataset card\n", encoding="utf-8")
+    (output / "jsonl" / "qinghai_facts.jsonl").write_text("tampered\n", encoding="utf-8")
+
+    report = validate_release_package(output)
+
+    assert report["status"] == "FAIL"
+    assert any("Checksum mismatch" in error for error in report["errors"])

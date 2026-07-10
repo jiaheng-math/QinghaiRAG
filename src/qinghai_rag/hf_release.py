@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import re
 import shutil
 from pathlib import Path
 from typing import Any
 
 from qinghai_rag.config import ProjectPaths
+from qinghai_rag.evidence_minimization import contains_adjacent_personal_field
 from qinghai_rag.io_utils import write_json_atomic, write_jsonl_atomic
 
 RELEASE_VERSION = "1.0.0-rc1"
@@ -31,6 +34,11 @@ CONFIG_FILES = (
     "coverage_targets.yaml",
     "release_policy.yaml",
 )
+
+PRIVATE_PATH_PATTERN = re.compile(
+    r"(?:/root/|/Users/|[A-Za-z]:\\\\Users\\\\|autodl-container-|autodl-tmp/)"
+)
+REVIEWER_EMAIL_PATTERN = re.compile(r"reviewer\s*[:=][^;\n]*@[\w.-]+", re.IGNORECASE)
 
 
 def sha256_file(path: str | Path) -> str:
@@ -132,3 +140,88 @@ def upload_supporting_files(api: Any, repo_id: str, output: str | Path, token: s
         ],
         commit_message=f"Add QinghaiRAG {RELEASE_VERSION} audit package",
     )
+
+
+def validate_release_package(output: str | Path) -> dict[str, Any]:
+    output_path = Path(output)
+    manifest_path = output_path / "RELEASE_MANIFEST.json"
+    errors: list[str] = []
+    checked_files = 0
+
+    if not manifest_path.exists():
+        return {"status": "FAIL", "errors": ["Missing RELEASE_MANIFEST.json"]}
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    expected_files: list[tuple[Path, str, int | None]] = []
+    for config_name, metadata in manifest.get("configs", {}).items():
+        expected_files.append(
+            (
+                output_path / metadata["path"],
+                metadata["sha256"],
+                int(metadata["records"]),
+            )
+        )
+        if not config_name:
+            errors.append("Manifest contains an empty config name")
+    for filename, checksum in manifest.get("reports", {}).items():
+        expected_files.append((output_path / "reports" / filename, checksum, None))
+    for filename, checksum in manifest.get("pipeline_configs", {}).items():
+        expected_files.append((output_path / "pipeline_configs" / filename, checksum, None))
+
+    for path, expected_sha256, expected_rows in expected_files:
+        if not path.exists():
+            errors.append(f"Missing packaged file: {path.relative_to(output_path)}")
+            continue
+        checked_files += 1
+        actual_sha256 = sha256_file(path)
+        if actual_sha256 != expected_sha256:
+            errors.append(f"Checksum mismatch: {path.relative_to(output_path)}")
+        if expected_rows is not None:
+            actual_rows = sum(1 for line in path.open(encoding="utf-8") if line.strip())
+            if actual_rows != expected_rows:
+                errors.append(
+                    f"Row-count mismatch: {path.relative_to(output_path)} "
+                    f"expected={expected_rows} actual={actual_rows}"
+                )
+
+    for path in (output_path / "jsonl").glob("*.jsonl"):
+        text = path.read_text(encoding="utf-8")
+        if PRIVATE_PATH_PATTERN.search(text):
+            errors.append(f"Private/local path found in {path.relative_to(output_path)}")
+        if REVIEWER_EMAIL_PATTERN.search(text):
+            errors.append(f"Reviewer email found in {path.relative_to(output_path)}")
+
+    facts_path = output_path / "jsonl" / "qinghai_facts.jsonl"
+    if facts_path.exists():
+        for line_number, line in enumerate(facts_path.open(encoding="utf-8"), start=1):
+            if not line.strip():
+                continue
+            try:
+                fact = json.loads(line)
+            except json.JSONDecodeError:
+                errors.append(f"Invalid packaged fact JSON at line {line_number}")
+                continue
+            if contains_adjacent_personal_field(fact.get("evidence_text")):
+                errors.append(
+                    f"Unrelated personal field in packaged fact at line {line_number}"
+                )
+
+    required_support = {
+        output_path / "README.md",
+        output_path / "reports" / "TECHNICAL_REPORT.md",
+        output_path / "reports" / "QinghaiRAG_Technical_Report_1.0.0-rc1.pdf",
+    }
+    for path in required_support:
+        if not path.exists():
+            errors.append(f"Missing required supporting file: {path.relative_to(output_path)}")
+
+    return {
+        "status": "PASS" if not errors else "FAIL",
+        "version": manifest.get("version"),
+        "configs": {
+            name: metadata.get("records")
+            for name, metadata in manifest.get("configs", {}).items()
+        },
+        "checked_manifest_files": checked_files,
+        "errors": errors,
+    }

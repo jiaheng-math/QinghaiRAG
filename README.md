@@ -6,6 +6,8 @@ The project is deliberately not marketed as a “Qinghai tourism foundation mode
 
 > **Release status:** the latest audited build is a real-data `1.0.0-rc1` candidate (868 sources, 1,595 facts, 1,000 QA; 511 facts and 300 QA manually checked). It is no longer the original toy seed, but it is still below the configured final V1 entity/fact/chunk scale targets. Run the validator and statistics report against the exact downloaded snapshot before citing benchmark results.
 
+> **Download the audited dataset:** [zhangjh123/QinghaiRAG on Hugging Face](https://huggingface.co/datasets/zhangjh123/QinghaiRAG). GitHub is the canonical home for the pipeline, baseline, tests, and documentation. The small JSONL files tracked under `data/release/` are intentionally retained only as CI/smoke-test fixtures; they are not the published 868-source snapshot and must not be used to reproduce the reported benchmark metrics.
+
 ## Three release tiers
 
 Scale is a quality gate, not a licence to collect low-quality text. The ordering remains: **source legality > provenance > structure > QA quality > volume**.
