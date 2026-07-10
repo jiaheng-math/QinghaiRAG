@@ -31,7 +31,9 @@ def canonical_source_url(url: str) -> str:
     domain = normalize_domain(url)
     path = re.sub(r"/+$", "", parsed.path) or "/"
     if domain == "ihchina.cn":
-        match = re.fullmatch(r"(/project_details/\d+)(?:\.html)?", path)
+        match = re.fullmatch(
+            r"(/(?:project_details|ccr_detail)/\d+)(?:\.html)?", path
+        )
         if match:
             path = match.group(1)
     query = urlencode(sorted(parse_qsl(parsed.query, keep_blank_values=True)))

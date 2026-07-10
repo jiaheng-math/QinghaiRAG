@@ -67,7 +67,9 @@ class SourceCandidateRecord(StrictRecord):
     license_status: LicenseStatus = LicenseStatus.UNCLEAR
     release_policy: ReleasePolicy = ReleasePolicy.METADATA_AND_FACTS_ONLY
     raw_text_release: bool = False
-    discovery_method: Literal["ihchina_catalog", "manual"]
+    discovery_method: Literal[
+        "ihchina_catalog", "ihchina_inheritor_catalog", "manual"
+    ]
     discovered_at: str
     review_status: ReviewStatus = ReviewStatus.PENDING
     catalog_metadata: dict[str, str] = Field(default_factory=dict)

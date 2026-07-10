@@ -1,5 +1,6 @@
 from qinghai_rag.source_discovery import (
     candidate_to_source,
+    candidates_from_ihchina_inheritor_payload,
     candidates_from_ihchina_payload,
 )
 
@@ -38,3 +39,35 @@ def test_ihchina_catalog_payload_deduplicates_remote_ids():
     item = {"id": "14056", "title": "热贡艺术", "type": "传统美术"}
     records = candidates_from_ihchina_payload({"list": [item, item]})
     assert len(records) == 1
+
+
+def test_ihchina_inheritor_payload_becomes_conservative_source_candidate():
+    payload = {
+        "list": [
+            {
+                "id": "740",
+                "num": "01-0025",
+                "title": "才让旺堆",
+                "day": "1933",
+                "sex": "男",
+                "nation": "藏族",
+                "type": "民间文学",
+                "project_num": "Ⅰ-27",
+                "project": "格萨(斯)尔",
+                "rx_time": "01(2007年（第一批）)",
+                "province": "青海省",
+                "unit": "青海省",
+            }
+        ]
+    }
+    [candidate] = candidates_from_ihchina_inheritor_payload(
+        payload, discovered_at="2026-07-10"
+    )
+    assert candidate.source_id == "src_ihchina_inheritor_740"
+    assert candidate.url == "https://www.ihchina.cn/ccr_detail/740.html"
+    assert candidate.title == "才让旺堆"
+    assert candidate.topic == ["非遗", "代表性传承人", "民间文学"]
+    assert candidate.catalog_metadata["project"] == "格萨(斯)尔"
+    assert candidate.catalog_metadata["ethnic_group"] == "藏族"
+    assert candidate.discovery_method == "ihchina_inheritor_catalog"
+    assert candidate.release_policy.value == "metadata_and_facts_only"

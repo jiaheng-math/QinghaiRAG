@@ -78,6 +78,8 @@ make stats
 
 `make discover` queries the official national ICH catalog for Qinghai project pages and writes a conservative review queue to `data/interim/source_candidates_ihchina.jsonl`. It does not register or crawl candidates. Review the queue first; after approval, run `python scripts/12_discover_ihchina_catalog.py --register`, then collect selected registered source IDs with a real maintainer contact.
 
+The official representative-inheritor directory is a separate source class. Run `python scripts/14_discover_ihchina_inheritors.py` to create its review queue, then add `--register` only after inspecting the candidates. Registration still uses `metadata_and_facts_only` and does not release biography prose.
+
 `make qa` targets at least 300 generated records, matching the v0.1 QA floor. If the verified fact graph does not support enough distinct grounded questions, the generator warns and emits fewer records rather than padding the benchmark with duplicates or unsupported questions.
 
 Every derived stage stores an input fingerprint and parameters under `data/cache/checkpoints/`. Re-running with unchanged inputs reuses outputs. Collection checkpoints after every source and raw HTML is written through a temporary file before rename. FAISS also records the chunk fingerprint and embedding model, so an existing index is reused only when compatible.

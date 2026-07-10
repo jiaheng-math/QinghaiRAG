@@ -22,6 +22,9 @@ def test_ihchina_detail_url_variants_have_one_canonical_identity():
     assert canonical_source_url(
         "https://www.ihchina.cn/project_details/14054/"
     ) == canonical_source_url("https://www.ihchina.cn/project_details/14054.html")
+    assert canonical_source_url(
+        "https://www.ihchina.cn/ccr_detail/740/"
+    ) == canonical_source_url("https://www.ihchina.cn/ccr_detail/740.html")
 
 
 def test_registry_preserves_existing_reviewed_source_when_url_is_rediscovered(tmp_path):
