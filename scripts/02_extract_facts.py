@@ -9,6 +9,7 @@ from qinghai_rag.fact_extraction import (
     deduplicate_facts,
     extract_semistructured_facts,
     extract_table_facts,
+    merge_extracted_facts,
 )
 from qinghai_rag.io_utils import read_jsonl, write_jsonl_atomic
 from qinghai_rag.schemas import FactRecord, SourceRecord
@@ -55,13 +56,8 @@ def main() -> None:
     write_jsonl_atomic(interim_path, extracted, sort_key="fact_id")
     releasable = [fact for fact in extracted if fact.confidence in {"high", "medium"}]
     existing = [] if args.replace else read_jsonl(release_path, FactRecord)
-    merged = {fact.fact_id: fact for fact in existing}
-    for fact in releasable:
-        reviewed = merged.get(fact.fact_id)
-        if reviewed and (reviewed.verified or reviewed.manual_checked):
-            continue
-        merged[fact.fact_id] = fact
-    write_jsonl_atomic(release_path, merged.values(), sort_key="fact_id")
+    merged = merge_extracted_facts(existing, releasable)
+    write_jsonl_atomic(release_path, merged, sort_key="fact_id")
     state.commit()
     print(
         f"Extracted {len(extracted)} facts; released/retained {len(merged)}. Auto-extracted facts remain verified=false."

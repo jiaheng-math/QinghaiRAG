@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import unicodedata
 from collections.abc import Iterable
 
 from bs4 import BeautifulSoup
@@ -34,6 +35,17 @@ RELATIONS = {
     "inherited_by": ("inherited_by", "PERSON"),
     "level": ("has_level", "CONCEPT"),
 }
+
+
+def _normalized_project_key(value: str) -> str:
+    return re.sub(r"\s+", "", unicodedata.normalize("NFKC", value))
+
+
+def _matches_source_project(project: str, source: SourceRecord) -> bool:
+    if source.domain != "ihchina.cn":
+        return True
+    page_project = re.split(r"\s+-\s+中国非物质文化遗产网", source.title, maxsplit=1)[0]
+    return _normalized_project_key(project) == _normalized_project_key(page_project)
 
 
 def stable_fact_id(subject: str, predicate: str, obj: str, source_id: str) -> str:
@@ -94,6 +106,8 @@ def extract_table_facts(html: str, source: SourceRecord) -> list[FactRecord]:
             project = values.get("project")
             if not project:
                 continue
+            if not _matches_source_project(project, source):
+                continue
             declared_by = values.get("declared_by", "")
             if declared_by and source.province and source.province not in declared_by:
                 continue
@@ -117,6 +131,8 @@ def extract_semistructured_facts(text: str, source: SourceRecord) -> list[FactRe
         re.S,
     )
     for match in pattern.finditer(text):
+        if not _matches_source_project(match.group("project"), source):
+            continue
         evidence = re.sub(r"\s+", " ", match.group(0))[:300]
         facts.append(
             make_fact(
@@ -135,3 +151,15 @@ def extract_semistructured_facts(text: str, source: SourceRecord) -> list[FactRe
 
 def deduplicate_facts(facts: Iterable[FactRecord]) -> list[FactRecord]:
     return list({fact.fact_id: fact for fact in facts}.values())
+
+
+def merge_extracted_facts(
+    existing: Iterable[FactRecord], extracted: Iterable[FactRecord]
+) -> list[FactRecord]:
+    merged = {
+        fact.fact_id: fact for fact in existing if fact.verified or fact.manual_checked
+    }
+    for fact in extracted:
+        if fact.fact_id not in merged:
+            merged[fact.fact_id] = fact
+    return list(merged.values())
