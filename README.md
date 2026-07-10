@@ -107,6 +107,15 @@ Auto-extracted table facts are marked `verified=false`. Review evidence and norm
 
 For sources discovered from the official national ICH catalog, deterministic verification can require exact agreement between the catalog metadata and page-table evidence. Run `python scripts/13_verify_catalog_facts.py` for a dry-run report, then add `--apply` only when the report has no issues. This sets `verified=true` while deliberately leaving `manual_checked=false`; it does not count as human review.
 
+Scanned local-government catalogs use a separate human-review path. Install optional OCR annotation tools with `pip install -e '.[ocr]'`, but treat OCR only as transcription assistance. Store the complete reviewed table, official landing/attachment URLs, review metadata, and attachment SHA-256 under `annotations/local_catalogs/`. Validate the local raw attachment and preview the import before applying it:
+
+```bash
+python scripts/18_import_reviewed_local_catalog.py
+python scripts/18_import_reviewed_local_catalog.py --apply
+```
+
+The importer is idempotent, refuses a changed attachment hash, marks reviewed facts with `extraction_method=manual_review`, and never releases the scanned PDF as open text.
+
 ## Release policy
 
 Publicly accessible does not mean redistributable. The policy engine follows these defaults:

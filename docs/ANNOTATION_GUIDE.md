@@ -35,6 +35,8 @@ Fuzzy matching is a review suggestion, never automatic authority. Similar person
 
 `manual_checked=true` means a human reviewer opened the exact source and completed the checklist below. `manual_seed`, `verified=true`, or a toy record does not by itself count as manual review. This distinction is used by the v0.1/v1.0 scale report.
 
+Reviewed scanned catalogs must also record the official landing page and attachment URLs, the attachment SHA-256, review date and role, expected row count, and the complete reviewed transcription. OCR is annotation assistance only: its output is never marked verified without row-by-row visual confirmation. Reviewed transcriptions live under `annotations/local_catalogs/`; raw PDFs remain ignored.
+
 ## Conflicts
 
 Retain both evidence-backed facts, mark them unverified or lower confidence, and explain the conflict in `notes`. Do not create a deterministic synthetic sentence or QA answer until a reviewer resolves the scope/date/identity issue. Do not silently select the newest page without checking what changed.

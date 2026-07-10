@@ -1,0 +1,35 @@
+review_id: review_huangzhong_4th_ich_2025
+reviewed_at: "2026-07-10"
+reviewer_role: maintainer
+review_method: Visual row-by-row comparison against the rendered official PDF attachment after OCR-assisted transcription.
+source_id: src_huangzhong_4th_ich_2025
+title: 西宁市湟中区第四批非物质文化遗产项目代表作名录
+publisher: 西宁市湟中区文体旅游局
+parent_page_url: https://www.huangzhong.gov.cn/html/zwgg/9896.html
+attachment_url: https://www.huangzhong.gov.cn/upload/13/f9df61f99ac11e9ddd2d12dd16269b.pdf
+attachment_sha256: 75e1455dc0f186f3d7e7c13d1435998d90c1e2c3bf794a84125ffe61641ae6ed
+raw_path: data/raw/local_official/huangzhong_4th_ich_list.pdf
+region: [青海省, 西宁市, 湟中区]
+topic: [非遗, 文旅政策, 地方非遗名录]
+level: 湟中区级
+batch: 第四批
+expected_rows: 18
+rows:
+  - {sequence: 1, project_number: "Ⅷ-18", project_name: "湟中“夏巴列”饼制作技艺", category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 2, project_number: "Ⅷ-19", project_name: 湟中社火服装制作技艺, category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 3, project_number: "Ⅷ-20", project_name: 荨麻口袋制作技艺, category: 传统技艺, circulation_area: 鲁沙尔镇}
+  - {sequence: 4, project_number: "Ⅷ-21", project_name: 湟中高跷制作技艺, category: 传统技艺, circulation_area: 鲁沙尔镇}
+  - {sequence: 5, project_number: "Ⅷ-22", project_name: 青海华坊传统缂毛织造技艺, category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 6, project_number: "Ⅷ-23", project_name: 传统泥瓦营造技艺, category: 传统技艺, circulation_area: 鲁沙尔镇}
+  - {sequence: 7, project_number: "Ⅷ-24", project_name: 古法沙棘火锅汤炮制技艺, category: 传统技艺, circulation_area: 青海省}
+  - {sequence: 8, project_number: "Ⅷ-25", project_name: 宗喀藏香制作技艺, category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 9, project_number: "Ⅷ-26", project_name: 一真天然真香古法制作技艺, category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 10, project_number: "Ⅷ-27", project_name: 湟中暖锅制作技艺, category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 11, project_number: "Ⅷ-28", project_name: 酥油蜂蜡香烛制作技艺, category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 12, project_number: "Ⅷ-29", project_name: 手工藏袍制作技艺, category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 13, project_number: "Ⅷ-30", project_name: 海亚锟锅馍馍制作技艺, category: 传统技艺, circulation_area: 湟中区}
+  - {sequence: 14, project_number: "IX-11", project_name: "传统回药马准（膏滋）制作技艺", category: 传统医药, circulation_area: 鲁沙尔镇}
+  - {sequence: 15, project_number: "IX-12", project_name: 官氏推拿针灸, category: 传统医药, circulation_area: 湟中区}
+  - {sequence: 16, project_number: "Ⅲ-13", project_name: 湟中寸跷, category: 传统舞蹈, circulation_area: 湟中区}
+  - {sequence: 17, project_number: "X-25", project_name: 夏玛拉, category: 民俗, circulation_area: 湟中区}
+  - {sequence: 18, project_number: "X-26", project_name: "拦隆“二月二”庙会", category: 民俗, circulation_area: 拦隆口镇}

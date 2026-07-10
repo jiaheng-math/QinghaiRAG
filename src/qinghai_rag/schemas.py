@@ -165,7 +165,9 @@ class FactRecord(StrictRecord):
     evidence_source_id: str
     evidence_url: str
     evidence_text: str | None = None
-    extraction_method: Literal["rule", "table_parse", "llm_assisted", "manual_seed"]
+    extraction_method: Literal[
+        "rule", "table_parse", "llm_assisted", "manual_seed", "manual_review"
+    ]
     verified: bool = False
     confidence: Confidence = "medium"
     manual_checked: bool = False
