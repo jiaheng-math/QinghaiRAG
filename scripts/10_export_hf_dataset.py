@@ -61,9 +61,14 @@ def main() -> None:
         require_reports=not args.allow_missing_reports,
     )
     if args.push:
-        token = os.getenv("HF_TOKEN")
+        from huggingface_hub import HfApi, get_token
+
+        token = os.getenv("HF_TOKEN") or get_token()
         if not token or not args.repo_id:
-            raise ValueError("--push requires both HF_TOKEN and --repo-id")
+            raise ValueError(
+                "--push requires --repo-id and either a cached `hf auth login` session "
+                "or HF_TOKEN"
+            )
         for config_name, dataset in datasets.items():
             dataset.push_to_hub(
                 args.repo_id,
@@ -71,8 +76,6 @@ def main() -> None:
                 split="full",
                 token=token,
             )
-        from huggingface_hub import HfApi
-
         upload_supporting_files(HfApi(), args.repo_id, output, token)
     counts = {name: len(rows) for name, rows in records.items()}
     print(

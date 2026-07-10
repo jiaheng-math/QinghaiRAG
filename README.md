@@ -232,7 +232,7 @@ export HF_TOKEN=...
 python scripts/10_export_hf_dataset.py --push --repo-id your-name/QinghaiRAG
 ```
 
-The exporter creates six heterogeneous Hub configs, each with a `full` split: `source_registry`, `entities`, `facts`, `open_chunks`, `qa_benchmark`, and `audit_samples`. It also packages canonical JSONL, SHA-256 checksums, validation/statistics/coverage/evaluation reports, and the relevant pipeline configs. A release export fails when required reports are missing unless the development-only `--allow-missing-reports` flag is supplied. Raw HTML, private reviewer identity, local paths, and local-only text are never exported.
+`HF_TOKEN` is optional after `hf auth login`; the exporter reuses the cached active token. It creates six heterogeneous Hub configs, each with a `full` split: `source_registry`, `entities`, `facts`, `open_chunks`, `qa_benchmark`, and `audit_samples`. It also packages canonical JSONL, SHA-256 checksums, validation/statistics/coverage/evaluation reports, and the relevant pipeline configs. A release export fails when required reports are missing unless the development-only `--allow-missing-reports` flag is supplied. Raw HTML, private reviewer identity, local paths, and local-only text are never exported.
 
 ## Tests and quality checks
 
