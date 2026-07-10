@@ -99,6 +99,8 @@ The page is checked again after retrieval. Restricted domains or phrases such as
 
 Auto-extracted table facts are marked `verified=false`. Review evidence and normalization before changing them to `verified=true`; only verified medium/high-confidence facts feed synthetic chunks and generated QA.
 
+For sources discovered from the official national ICH catalog, deterministic verification can require exact agreement between the catalog metadata and page-table evidence. Run `python scripts/13_verify_catalog_facts.py` for a dry-run report, then add `--apply` only when the report has no issues. This sets `verified=true` while deliberately leaving `manual_checked=false`; it does not count as human review.
+
 ## Release policy
 
 Publicly accessible does not mean redistributable. The policy engine follows these defaults:
